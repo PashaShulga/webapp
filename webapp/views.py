@@ -40,16 +40,37 @@ def content(request):
         order = DBSession.query(Orders).filter_by(mail=user.mail).first()
         if order.id is not None:
             check_user = DBSession.query(Content).filter_by(bundle_id=order.bundle_id).first()
-        return {'title': check_user.title,
-                'description': check_user.description,
-                'link': check_user.link,
-                'image': '../'+check_user.image,
-                }
+            return {'title': check_user.title,
+                    'description': check_user.description,
+                    'link': check_user.link,
+                    'image': '../'+check_user.image,
+                    }
+        else:
+            return {'title': check_user.title,
+                    'description': check_user.description,
+                    'link': check_user.link,
+                    'image': '../'+check_user.image,
+                    }
+    # try:
+    #     query = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
+    # except:
+    #     return HTTPFound(location='/')
+    # return Response(content_type='text/plain', status_int=500)
+
+
+@view_config(route_name='preview', renderer='templates/preview.pt')
+def preview(request):
     try:
-        query = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
-    except:
-        return HTTPFound(location='/')
-    return Response(content_type='text/plain', status_int=500)
+
+        if request.unauthenticated_userid is None:
+            return {
+                'form': PaymentForm(request.POST),
+                'login_status': 'login',
+                'link': '/login',
+                'content': content
+            }
+    except DBAPIError:
+        return Response(content_type='text/plain', status_int=500)
 
 
 @view_config(route_name='index', renderer='templates/index.pt')
@@ -64,11 +85,7 @@ def index(request):
                     'content': content(request)
                     }
         elif request.unauthenticated_userid is None:
-            return {'form': form,
-                    'login_status': 'login',
-                    'link': '/login',
-
-                    }
+            return preview(request)
     except DBAPIError:
         return Response(content_type='text/plain', status_int=500)
 
@@ -139,7 +156,7 @@ def end_reg(request):
         return HTTPFound(location=request.route_url('index'))
     except Exception as e:
         print(e)
-    return {'message': 'dasda'}
+    return {'message': 'You account is activate!'}
 
 
 @view_config(route_name='bundles', renderer='templates/bundles.pt')

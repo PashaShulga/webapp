@@ -133,6 +133,7 @@
 
         <div class="center-block input-group col-md-2">
             <h2>Select ratio</h2>
+
             <input id="range1" type="range" min="0" max="100" value="0"/>
             <br/>
             <label>0</label>
