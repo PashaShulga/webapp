@@ -33,6 +33,7 @@ def main(global_config, **settings):
     config.add_route('confirm', '/confirm')
     config.add_route('content', '/content/{id}')
     config.add_route('bundles', '/bundles/{signature}')
+    config.add_route('pay', '/pay')
     config.scan()
 
     return config.make_wsgi_app()
