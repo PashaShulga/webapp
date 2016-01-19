@@ -1,15 +1,13 @@
 from pyramid.response import Response
-from pyramid.renderers import get_renderer
 from pyramid.httpexceptions import HTTPFound
 from .form import RegistrationForm, LoginForm, PaymentForm
 from .models import Users, Content, Orders
 from sqlalchemy.exc import DBAPIError
 from passlib.apps import custom_app_context as check_password
+from mako.template import Template
 from .models import (
     DBSession,
-
     )
-
 from pyramid.view import (
     view_config,
     forbidden_view_config,
@@ -32,33 +30,26 @@ def users_check(func):
                 return True
 
 
-@view_config(route_name='content', renderer='templates/content.pt')
+@view_config(route_name='content', renderer='webapp:templates/content.mako')
 def content(request):
-    check_user = None
-    if request.unauthenticated_userid is not None:
-        user = DBSession.query(Users).filter_by(name=request.unauthenticated_userid).first()
-        order = DBSession.query(Orders).filter_by(mail=user.mail).first()
-        if order.id is not None:
-            check_user = DBSession.query(Content).filter_by(bundle_id=order.bundle_id).first()
-            return {'title': check_user.title,
-                    'description': check_user.description,
-                    'link': check_user.link,
-                    'image': '../'+check_user.image,
-                    }
-        else:
-            return {'title': check_user.title,
-                    'description': check_user.description,
-                    'link': check_user.link,
-                    'image': '../'+check_user.image,
-                    }
-    # try:
-    #     query = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
-    # except:
-    #     return HTTPFound(location='/')
+    try:
+        check_user = None
+        if request.unauthenticated_userid is not None:
+            user = DBSession.query(Users).filter_by(name=request.unauthenticated_userid).first()
+            order = DBSession.query(Orders).filter_by(mail=user.mail).first()
+            if order.id is not None:
+                check_user = DBSession.query(Content).all()
+                return (check_user)
+            else:
+                return (check_user) #preview
+
+            query = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
+    except:
+        return HTTPFound(location='/')
     # return Response(content_type='text/plain', status_int=500)
 
 
-@view_config(route_name='preview', renderer='templates/preview.pt')
+@view_config(route_name='preview', renderer='webapp:templates/preview.mako')
 def preview(request):
     try:
 
@@ -67,13 +58,13 @@ def preview(request):
                 'form': PaymentForm(request.POST),
                 'login_status': 'login',
                 'link': '/login',
-                'content': content
+                'items': content(request)
             }
     except DBAPIError:
         return Response(content_type='text/plain', status_int=500)
 
 
-@view_config(route_name='index', renderer='templates/index.pt')
+@view_config(route_name='index', renderer='webapp:templates/index.mako')
 def index(request):
     try:
         form = PaymentForm(request.POST)
@@ -82,16 +73,16 @@ def index(request):
             return {'form': form,
                     'login_status': 'Welcome, '+request.unauthenticated_userid,
                     'link': '/logout',
-                    'content': content(request)
+                    'items': content(request)
                     }
-        elif request.unauthenticated_userid is None:
+        else:
             return preview(request)
     except DBAPIError:
         return Response(content_type='text/plain', status_int=500)
 
 
-@view_config(route_name='login', renderer='templates/login.pt')
-@forbidden_view_config(renderer='templates/login.pt')
+@view_config(route_name='login', renderer='webapp:templates/login.mako')
+@forbidden_view_config(renderer='webapp:templates/login.mako')
 def login(request):
     login_url = request.route_url('login')
     referrer = request.url
@@ -119,14 +110,14 @@ def login(request):
     )
 
 
-@view_config(route_name='logout', renderer='templates/logout.pt')
+@view_config(route_name='logout', renderer='webapp:templates/logout.mako')
 def logout(request):
     headers = forget(request)
     return HTTPFound(location = request.route_url('index'),
                      headers = headers)
 
 
-@view_config(route_name='registration', renderer='templates/registration.pt')
+@view_config(route_name='registration', renderer='webapp:templates/registration.mako')
 def register(request):
     form = RegistrationForm(request.POST)
     if request.method == 'POST' and form.validate():
@@ -145,7 +136,7 @@ def register(request):
     return {'form': form}
 
 
-@view_config(route_name='end_reg', renderer='templates/confirm.pt')
+@view_config(route_name='end_reg', renderer='webapp:templates/confirm.mako')
 def end_reg(request):
     try:
         db_query = DBSession.query(Users).filter(Users.activate_code == request.url).first()
@@ -159,7 +150,7 @@ def end_reg(request):
     return {'message': 'You account is activate!'}
 
 
-@view_config(route_name='bundles', renderer='templates/bundles.pt')
+@view_config(route_name='bundles', renderer='webapp:templates/bundles.mako')
 def bundles(request):
     form = PaymentForm(request.POST)
     # if request.method == 'POST' and form.validate():

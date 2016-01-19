@@ -22,7 +22,6 @@ def main(global_config, **settings):
     config = Configurator(settings=settings, root_factory='webapp.models.RootFactory')
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
-    config.include('pyramid_chameleon')
     config.registry['mailer'] = Mailer.from_settings(settings)
     config.add_static_view('static', 'static', cache_max_age=3600)
     config.add_route('index', '/')

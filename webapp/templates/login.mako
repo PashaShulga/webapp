@@ -1,3 +1,4 @@
+
 <!-- All the files that are required -->
 <link rel="stylesheet" href="../static/css/bootstrap.min.css">
 <link rel="stylesheet" href="../static/css/login.css">
@@ -8,10 +9,10 @@
 <!-- Where all the magic happens -->
 <!-- LOGIN FORM -->
 <div class="text-center" style="padding:50px 0">
-	<div class="logo"><span tal:replace="message"></span></div>
+	<div class="logo"><span> ${message} </span></div>
 	<!-- Main Form -->
 	<div class="login-form-1">
-		<form id="login-form" class="text-left" method="post" action="${url}">
+		<form id="login-form" class="text-left" method="post" action=${url}>
 			<div class="login-form-main-message"></div>
 			<div class="main-login-form">
 				<div class="login-group">
