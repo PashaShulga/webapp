@@ -1,32 +1,20 @@
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>humble</title>
-
-    <!-- Bootstrap -->
-    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-  </head>
-<body>
+<%inherit file="base.html"/>
+<%block name="content">
 <div class="col-md-7">
 <div class="media">
   <div class="media-left media-middle">
     <a href="#">
-      <img class="media-object" src="${image}" style="width: 30px; height: 20px;">
+      <img class="media-object" src="${image}" style="width: 200px; height: 200px;">
     </a>
   </div>
   <div class="media-body">
-    <h4 class="media-heading">${title}</h4>
+    <h1 class="media-heading">${title}</h1>
+    <h3 class="media-heading">${manufacture}</h3>
+      <p style="word-wrap: break-word">${description}</p>
+       % if link is not None:
+           <a href="${link}">Link</a>
+       % endif
   </div>
 </div>
     </div>
-</body>
-</html>
+</%block>

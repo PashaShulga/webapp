@@ -44,10 +44,9 @@
 				<button type="submit" class="login-button"><i class="fa fa-chevron-right"></i></button>
 			</div>
 			<div class="etc-login-form">
-				<p>already have an account? <a href="#">login here</a></p>
+				<p>already have an account? <a href="/login">login here</a></p>
 			</div>
 		</form>
-        <a href="${request.route_url('registration')}">Reg</a>
 	</div>
 	<!-- end:Main Form -->
 </div>

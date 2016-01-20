@@ -1,4 +1,4 @@
-
+<%block name="login">
 <!-- All the files that are required -->
 <link rel="stylesheet" href="../static/css/bootstrap.min.css">
 <link rel="stylesheet" href="../static/css/login.css">
@@ -33,9 +33,10 @@
 			</div>
 			<div class="etc-login-form">
 				<p>forgot your password? <a href="#">click here</a></p>
-				<p>new user? <a href="/registration">create new account</a></p>
+				<p>New user? <a href="/registration">create an account</a></p>
 			</div>
 		</form>
 	</div>
 	<!-- end:Main Form -->
 </div>
+</%block>

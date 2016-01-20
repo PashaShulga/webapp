@@ -7,6 +7,7 @@ from passlib.apps import custom_app_context as check_password
 from mako.template import Template
 from .models import (
     DBSession,
+    func
     )
 from pyramid.view import (
     view_config,
@@ -30,6 +31,24 @@ def users_check(func):
                 return True
 
 
+@view_config(route_name='preview', renderer='webapp:templates/preview.mako')
+def preview(request):
+    try:
+        if request.unauthenticated_userid is None:
+            # user = DBSession.query(Users).filter_by(name=request.unauthenticated_userid).first()
+            # order = DBSession.query(Orders).filter_by(mail=user.mail).first()
+            # if order.id is not None:
+            check_user = DBSession.query(Content).filter(Content.id==request.matchdict['id']).first()
+            return {'image': '../'+check_user.image,
+                        'title': check_user.title,
+                        'description': check_user.description,
+                        'link': None,
+                        'manufacture': check_user.manufacture}
+    except:
+        return HTTPFound(location='/')
+    return Response(content_type='text/plain', status_int=500)
+
+
 @view_config(route_name='content', renderer='webapp:templates/content.mako')
 def content(request):
     try:
@@ -38,30 +57,18 @@ def content(request):
             user = DBSession.query(Users).filter_by(name=request.unauthenticated_userid).first()
             order = DBSession.query(Orders).filter_by(mail=user.mail).first()
             if order.id is not None:
-                check_user = DBSession.query(Content).all()
-                return (check_user)
+                check_user = DBSession.query(Content).filter(Content.id==request.matchdict['id']).first()
+                return {'image': '../'+check_user.image,
+                        'title': check_user.title,
+                        'description': check_user.description,
+                        'link': check_user.link,
+                        'manufacture': check_user.manufacture}
             else:
-                return (check_user) #preview
-
-            query = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
+                return preview(request)
+        else:
+            return preview(request)
     except:
         return HTTPFound(location='/')
-    # return Response(content_type='text/plain', status_int=500)
-
-
-@view_config(route_name='preview', renderer='webapp:templates/preview.mako')
-def preview(request):
-    try:
-
-        if request.unauthenticated_userid is None:
-            return {
-                'form': PaymentForm(request.POST),
-                'login_status': 'login',
-                'link': '/login',
-                'items': content(request)
-            }
-    except DBAPIError:
-        return Response(content_type='text/plain', status_int=500)
 
 
 @view_config(route_name='index', renderer='webapp:templates/index.mako')
@@ -69,16 +76,18 @@ def index(request):
     try:
         form = PaymentForm(request.POST)
         # mailer = request.registry['mailer']
-        if request.unauthenticated_userid is not None:
-            return {'form': form,
-                    'login_status': 'Welcome, '+request.unauthenticated_userid,
-                    'link': '/logout',
-                    'items': content(request)
-                    }
-        else:
-            return preview(request)
+        check_user = DBSession.query(Content).group_by(Content.id).limit(4).all()
+        _sum = DBSession.query(func.sum(Orders.sum_charity)).all()
+        _sold = DBSession.query(func.count(Orders.id)).all()
+        return {'items': check_user,
+                'form': form,
+                'req': request.unauthenticated_userid,
+                'link': '/logout',
+                'total_raised': _sum[0][0],
+                'sold': _sold[0][0],
+            }
     except DBAPIError:
-        return Response(content_type='text/plain', status_int=500)
+        return HTTPFound(location='/')
 
 
 @view_config(route_name='login', renderer='webapp:templates/login.mako')
