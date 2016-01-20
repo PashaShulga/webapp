@@ -38,13 +38,13 @@ def preview(request):
         # user = DBSession.query(Users).filter_by(name=request.unauthenticated_userid).first()
         # order = DBSession.query(Orders).filter_by(mail=user.mail).first()
         # if order.id is not None:
-        data = DBSession.query(Content).filter_by(id==request.matchdict['id']).first()
+        data = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
         return {'image': '../'+data.image,
                     'title': data.title,
                     'description': data.description,
                     'link': None,
                     'manufacture': data.manufacture}
-    except:
+    except DBAPIError:
         return HTTPFound(location='/')
 
 
@@ -56,9 +56,7 @@ def content(request):
             order = DBSession.query(Orders).filter_by(mail=user.mail).first()
             _sum = DBSession.query(func.sum(Orders.sum_charity+Orders.sum_content)).filter(Orders.mail==user.mail)
             if order is not None:
-                get_content_by_id = DBSession.query(Content).filter(lambda :Content.id==request.matchdict['id'] and Content.tier<=_sum[0][0]).first()
-                print(get_content_by_id.tier)
-                print(_sum[0][0])
+                get_content_by_id = DBSession.query(Content).filter(Content.id==request.matchdict['id'],Content.tier<=_sum[0][0]).first()
                 if get_content_by_id is not None:
                     return {'image': '../'+get_content_by_id.image,
                             'title': get_content_by_id.title,
@@ -66,9 +64,9 @@ def content(request):
                             'link': get_content_by_id.link,
                             'manufacture': get_content_by_id.manufacture}
                 else:
-                    return HTTPFound(location='/')
-            # else:
-            #     return preview(request)
+                    return preview(request)
+            else:
+                return preview(request)
         else:
             return preview(request)
     except DBAPIError:
@@ -170,3 +168,12 @@ def bundles(request):
     #     amount = form.amount.data
     #     email = form.email.data
     return {'form': form, 'message': 'test'}
+
+
+@view_config(route_name='pay', renderer='webapp:templates/pay.mako')
+def pay_methods(request):
+    try:
+        if request.POST:
+            pass
+    except DBAPIError:
+        return HTTPFound(location="/")

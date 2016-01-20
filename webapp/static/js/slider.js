@@ -12,7 +12,24 @@ range2.addEventListener("input", function(e) {
 }, false);
 
 
-//alert(document.getElementById("name").id);
+function bind(el, type, handler) {
+  if (el.addEventListener) {
+    el.addEventListener(type, handler, false);
+  } else {
+    el.attachEvent('on' + type, handler);
+  }
+}
 
 
-document.getElementById("r_name").innerHTML = document.getElementById("range1").value;
+var btnGroup = document.querySelectorAll('.btn-default');
+console.dir(btnGroup);
+var resultInput = document.getElementById('amount');
+
+function btnGroupHandle(e) {
+  resultInput.value = e.target.value;
+}
+
+for (i = 0; i < btnGroup.length; i++) {
+  var btn = btnGroup[i];
+  bind(btn, 'click', btnGroupHandle);
+}
