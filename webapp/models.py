@@ -66,13 +66,13 @@ class Charity(Base):
     description = Column(Text)
     bundle = relationship("Bundle", uselist=False, backref="charity")
 
-    def __init__(self, name=None, logo=None, description=None):
-        self.name = name
-        self.logo = logo
-        self.description = description
-
-    def __repr__(self):
-        return "<Charity(%s, %s, %s)>" % (self.name, self.logo, self.description)
+    # def __init__(self, name=None, logo=None, description=None):
+    #     self.name = name
+    #     self.logo = logo
+    #     self.description = description
+    #
+    # def __repr__(self):
+    #     return "<Charity(%s, %s, %s)>" % (self.name, self.logo, self.description)
 
 
 class Bundle(Base):
@@ -84,14 +84,14 @@ class Bundle(Base):
     date_end = Column(DateTime, nullable=True)
     charity_id = Column(Integer, ForeignKey(Charity.id))
 
-    def __init__(self, title=None, description=None, date_start=None, date_end=None):
-        self.title = title
-        self.description = description
-        self.date_start = date_start
-        self.date_end = date_end
-
-    def __repr__(self):
-        return "<Bundle(%s, %s, %s, %s)>" % (self.title, self.description, self.date_end, self.date_start)
+    # def __init__(self, title=None, description=None, date_start=None, date_end=None):
+    #     self.title = title
+    #     self.description = description
+    #     self.date_start = date_start
+    #     self.date_end = date_end
+    #
+    # def __repr__(self):
+    #     return "<Bundle(%s, %s, %s, %s)>" % (self.title, self.description, self.date_end, self.date_start)
 
 
 class Content(Base):
@@ -105,15 +105,15 @@ class Content(Base):
     tier = Column(Numeric(precision=5, scale=4))
     bundle_id = Column(Integer, ForeignKey(Bundle.id))
 
-    def __init__(self, title=None, description=None, manufacture=None, link=None, image=None):
-        self.title = title
-        self.description = description
-        self.manufacture = manufacture
-        self.link = link
-        self.image = image
-
-    def __repr__(self):
-        return "<Content(%s, %s, %s, %s, %s)>" % (self.title, self.description, self.manufacture, self.link, self.image)
+    # def __init__(self, title=None, description=None, manufacture=None, link=None, image=None):
+    #     self.title = title
+    #     self.description = description
+    #     self.manufacture = manufacture
+    #     self.link = link
+    #     self.image = image
+    #
+    # def __repr__(self):
+    #     return "<Content(%s, %s, %s, %s, %s)>" % (self.title, self.description, self.manufacture, self.link, self.image)
 
 
 class RootFactory(object):
@@ -133,10 +133,10 @@ class Orders(Base):
     timestamp = Column(DateTime, default=datetime.datetime.utcnow())
     mail = Column(String(50))
 
-    def __init__(self, sum_offer=None, content=None, timestamp=None):
-        self.sum_offer = sum_offer
-        self.content = content
-        self.timestamp = timestamp
-
-    def __repr__(self):
-        return "<Orders(%s, %s, %s)>" % (self.sum_offer, self.timestamp, self.content)
+    # def __init__(self, sum_offer=None, content=None, timestamp=None):
+    #     self.sum_offer = sum_offer
+    #     self.content = content
+    #     self.timestamp = timestamp
+    #
+    # def __repr__(self):
+    #     return "<Orders(%s, %s, %s)>" % (self.sum_offer, self.timestamp, self.content)

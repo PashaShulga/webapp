@@ -34,40 +34,44 @@ def users_check(func):
 @view_config(route_name='preview', renderer='webapp:templates/preview.mako')
 def preview(request):
     try:
-        if request.unauthenticated_userid is None:
-            # user = DBSession.query(Users).filter_by(name=request.unauthenticated_userid).first()
-            # order = DBSession.query(Orders).filter_by(mail=user.mail).first()
-            # if order.id is not None:
-            check_user = DBSession.query(Content).filter(Content.id==request.matchdict['id']).first()
-            return {'image': '../'+check_user.image,
-                        'title': check_user.title,
-                        'description': check_user.description,
-                        'link': None,
-                        'manufacture': check_user.manufacture}
+        data = None
+        # user = DBSession.query(Users).filter_by(name=request.unauthenticated_userid).first()
+        # order = DBSession.query(Orders).filter_by(mail=user.mail).first()
+        # if order.id is not None:
+        data = DBSession.query(Content).filter_by(id==request.matchdict['id']).first()
+        return {'image': '../'+data.image,
+                    'title': data.title,
+                    'description': data.description,
+                    'link': None,
+                    'manufacture': data.manufacture}
     except:
         return HTTPFound(location='/')
-    return Response(content_type='text/plain', status_int=500)
 
 
 @view_config(route_name='content', renderer='webapp:templates/content.mako')
 def content(request):
     try:
-        check_user = None
         if request.unauthenticated_userid is not None:
             user = DBSession.query(Users).filter_by(name=request.unauthenticated_userid).first()
             order = DBSession.query(Orders).filter_by(mail=user.mail).first()
-            if order.id is not None:
-                check_user = DBSession.query(Content).filter(Content.id==request.matchdict['id']).first()
-                return {'image': '../'+check_user.image,
-                        'title': check_user.title,
-                        'description': check_user.description,
-                        'link': check_user.link,
-                        'manufacture': check_user.manufacture}
-            else:
-                return preview(request)
+            _sum = DBSession.query(func.sum(Orders.sum_charity+Orders.sum_content)).filter(Orders.mail==user.mail)
+            if order is not None:
+                get_content_by_id = DBSession.query(Content).filter(lambda :Content.id==request.matchdict['id'] and Content.tier<=_sum[0][0]).first()
+                print(get_content_by_id.tier)
+                print(_sum[0][0])
+                if get_content_by_id is not None:
+                    return {'image': '../'+get_content_by_id.image,
+                            'title': get_content_by_id.title,
+                            'description': get_content_by_id.description,
+                            'link': get_content_by_id.link,
+                            'manufacture': get_content_by_id.manufacture}
+                else:
+                    return HTTPFound(location='/')
+            # else:
+            #     return preview(request)
         else:
             return preview(request)
-    except:
+    except DBAPIError:
         return HTTPFound(location='/')
 
 
