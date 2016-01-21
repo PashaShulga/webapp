@@ -78,6 +78,7 @@ def index(request):
         form = PaymentForm(request.POST)
         # mailer = request.registry['mailer']
         check_user = DBSession.query(Content).group_by(Content.id).limit(4).all()
+        bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow()).first()
         _sum = DBSession.query(func.sum(Orders.sum_charity)).all()
         _sold = DBSession.query(func.count(Orders.id)).all()
         return {'items': check_user,
@@ -86,6 +87,7 @@ def index(request):
                 'link': '/logout',
                 'total_raised': _sum[0][0],
                 'sold': _sold[0][0],
+                'bundle': bundle
             }
     except DBAPIError:
         return HTTPFound(location='/')
