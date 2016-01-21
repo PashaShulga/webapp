@@ -102,7 +102,7 @@ class Content(Base):
     manufacture = Column(String(50))
     link = Column(String(100))
     image = Column(String(100))
-    tier = Column(Numeric(precision=5, scale=4))
+    tier = Column(Numeric(precision=9, scale=2))
     bundle_id = Column(Integer, ForeignKey(Bundle.id))
 
     # def __init__(self, title=None, description=None, manufacture=None, link=None, image=None):
@@ -127,8 +127,8 @@ class RootFactory(object):
 class Orders(Base):
     __tablename__ = 'orders'
     id = Column(Integer, primary_key=True)
-    sum_content = Column(Numeric(precision=5, scale=4))
-    sum_charity = Column(Numeric(precision=5, scale=4))
+    sum_content = Column(Numeric(precision=9, scale=2))
+    sum_charity = Column(Numeric(precision=9, scale=2))
     bundle_id = Column(Integer, ForeignKey(Bundle.id))
     timestamp = Column(DateTime, default=datetime.datetime.utcnow())
     mail = Column(String(50))
