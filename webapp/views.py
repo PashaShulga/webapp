@@ -1,14 +1,12 @@
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound
 from .form import RegistrationForm, LoginForm, PaymentForm
-from .models import Users, Content, Orders
 from sqlalchemy.exc import DBAPIError
 from passlib.apps import custom_app_context as check_password
 from mako.template import Template
-from .models import (
-    DBSession,
-    func
-    )
+from .models import *
+
+
 from pyramid.view import (
     view_config,
     forbidden_view_config,
@@ -17,9 +15,10 @@ from pyramid.security import (
     remember,
     forget,
     )
-
+import transaction
 import hashlib
 import time
+import datetime
 
 
 def users_check(func):
@@ -173,7 +172,17 @@ def bundles(request):
 @view_config(route_name='pay', renderer='webapp:templates/pay.mako')
 def pay_methods(request):
     try:
-        if request.POST:
-            pass
+        form = PaymentForm(request.POST)
+        if request.method == 'POST':
+            if float(form.amount.data) >= 2.0:
+                _sum_content = float(request.POST['amount']) * float(request.POST['content']) / 100
+                _sum_charity = float(request.POST['amount']) * float(request.POST['charity']) / 100
+                bundle = DBSession.query(Bundle).filter(Bundle.date_end!=datetime.datetime.utcnow()).first()
+                if bundle is not None:
+                    new_order = Orders(sum_charity=_sum_charity, sum_content=_sum_content, mail=request.POST['email'], bundle_id=bundle.id)
+                    DBSession.add(new_order)
+                return {'message': 'OK'}
+            else:
+                return {'message': 'Enter sum >= 2'}
     except DBAPIError:
         return HTTPFound(location="/")

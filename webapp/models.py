@@ -133,10 +133,12 @@ class Orders(Base):
     timestamp = Column(DateTime, default=datetime.datetime.utcnow())
     mail = Column(String(50))
 
-    # def __init__(self, sum_offer=None, content=None, timestamp=None):
-    #     self.sum_offer = sum_offer
-    #     self.content = content
-    #     self.timestamp = timestamp
-    #
+    def __init__(self, sum_content=None, sum_charity=None, bundle_id=None, timestamp=datetime.datetime.utcnow(), mail=None):
+        self.sum_content = sum_content
+        self.sum_charity = sum_charity
+        self.timestamp = timestamp
+        self.bundle_id = bundle_id
+        self.mail = mail
+
     # def __repr__(self):
     #     return "<Orders(%s, %s, %s)>" % (self.sum_offer, self.timestamp, self.content)

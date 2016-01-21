@@ -68,11 +68,11 @@
                 <h2>Select ratio</h2>
                 <label>charity</label>
                 <input id="range1" type="range" min="0" max="100" value="0"/>
-                <input type="text" id="range-charity">
+                <input type="text" id="charity" name="charity"/>
                 <br/>
                 <label>content</label>
                 <input id="range2" type="range" min="0" max="100" value="100"/>
-                <input type="text" id="range-content">
+                <input type="text" id="content" name="content"/>
             </div>
 
             <div class="btn-group btn-group-lg">

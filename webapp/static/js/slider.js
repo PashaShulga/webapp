@@ -3,13 +3,25 @@
  */
 var range1 = document.getElementById("range1");
 var range2 = document.getElementById("range2");
+var charityText = document.getElementById("charity");
+var contentText = document.getElementById("content");
 
-range1.addEventListener("input", function(e) {
-    range2.value = 100 - (e.target.value);
-}, false);
-range2.addEventListener("input", function(e) {
-    range1.value = 100 - (e.target.value);
-}, false);
+function rang(r1, r2) {
+    r1.addEventListener("input", function (w) {
+        r1.value = (w.target.value);
+        charityText.value = w.target.value;
+    });
+    r2.addEventListener("input", function (j) {
+        r2.value = (j.target.value);
+        contentText.value = j.target.value;
+    });
+
+}
+rang(range1, range2);
+//range2.addEventListener("input", function(e) {
+//    range1.value = 100 - (e.target.value);
+//    contentText.value = e.target.value;
+//}, false);
 
 
 function bind(el, type, handler) {
