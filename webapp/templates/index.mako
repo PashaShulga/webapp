@@ -12,6 +12,7 @@
                     <pre>${item.description}</pre>
                     <p>
                         <a href="/content/${item.id}" class="btn btn-primary" role="button">Open</a>
+                        <label>${item.tier} $</label>
                         </p>
                     </div>
                 </div>
