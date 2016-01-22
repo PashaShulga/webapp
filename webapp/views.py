@@ -77,17 +77,19 @@ def index(request):
     try:
         form = PaymentForm(request.POST)
         # mailer = request.registry['mailer']
-        check_user = DBSession.query(Content).group_by(Content.id).limit(4).all()
+        content_on_main = DBSession.query(Content).order_by(Content.tier).limit(4).all()
+        _bonus = DBSession.query(Content).filter(Content.tier>=float(25.00)).limit(2).all()
         bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow()).first()
         _sum = DBSession.query(func.sum(Orders.sum_charity)).all()
         _sold = DBSession.query(func.count(Orders.id)).all()
-        return {'items': check_user,
+        return {'items': content_on_main,
                 'form': form,
                 'req': request.unauthenticated_userid,
                 'link': '/logout',
                 'total_raised': _sum[0][0],
                 'sold': _sold[0][0],
-                'bundle': bundle
+                'bundle': bundle,
+                'bonus': _bonus
             }
     except DBAPIError:
         return HTTPFound(location='/')
@@ -108,10 +110,12 @@ def login(request):
 
     if request.method == 'POST' and login is not None and password is not None:
         db_query = DBSession.query(Users).filter(Users.name == login).first()
-        if db_query.name == login and check_password.verify(password.encode('utf-8'), db_query.password):
-            headers = remember(request, login)
-            return HTTPFound(location=request.route_url('index'),
-                             headers=headers)
+        print(db_query)
+        if db_query is not None:
+            if db_query.name == login and check_password.verify(password.encode('utf-8'), db_query.password):
+                headers = remember(request, login)
+                return HTTPFound(location=request.route_url('index'),
+                                 headers=headers)
         message = 'Failed login'
 
     return dict(
@@ -176,15 +180,43 @@ def pay_methods(request):
     try:
         form = PaymentForm(request.POST)
         if request.method == 'POST':
+            amount = request.POST['amount']
+            content = request.POST['content']
+            charity = request.POST['charity']
             if float(form.amount.data) >= 2.0:
-                _sum_content = float(request.POST['amount']) * float(request.POST['content']) / 100
-                _sum_charity = float(request.POST['amount']) * float(request.POST['charity']) / 100
+                _sum_content = float(amount) * float(content) / 100
+                _sum_charity = float(amount) * float(charity) / 100
                 bundle = DBSession.query(Bundle).filter(Bundle.date_end!=datetime.datetime.utcnow()).first()
-                if bundle is not None:
+                if bundle is not None and (_sum_charity+_sum_content==amount):
                     new_order = Orders(sum_charity=_sum_charity, sum_content=_sum_content, mail=request.POST['email'], bundle_id=bundle.id)
                     DBSession.add(new_order)
-                return {'message': 'OK'}
+                    return {'message': 'OK'}
             else:
                 return {'message': 'Enter sum >= 2'}
     except DBAPIError:
         return HTTPFound(location="/")
+
+
+@view_config(route_name='b_content', renderer='webapp:templates/bonus.mako')
+def bonus_content(request):
+    try:
+        if request.unauthenticated_userid is not None:
+            user = DBSession.query(Users).filter_by(name=request.unauthenticated_userid).first()
+            order = DBSession.query(Orders).filter_by(mail=user.mail).first()
+            _sum = DBSession.query(func.sum(Orders.sum_charity+Orders.sum_content)).filter_by(mail=user.mail)
+            if order is not None:
+                get_content_by_id = DBSession.query(Content).filter(Content.id==request.matchdict['id'],Content.tier<=_sum[0][0]).first()
+                if get_content_by_id is not None:
+                    return {'image': '../'+get_content_by_id.image,
+                            'title': get_content_by_id.title,
+                            'description': get_content_by_id.description,
+                            'link': get_content_by_id.link,
+                            'manufacture': get_content_by_id.manufacture}
+                else:
+                    return preview(request)
+            else:
+                return preview(request)
+        else:
+            return preview(request)
+    except DBAPIError:
+        return HTTPFound(location='/')

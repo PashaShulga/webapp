@@ -28,17 +28,22 @@
 
     <div class="row center-block">
 
-        <div class="col-xs-6 col-md-3">
-            <a href="#" class="thumbnail">
-                <p>Bonus content 4</p>
-            </a>
-        </div>
+        % for item in bonus:
+            <div class="col-sm-6 col-md-3">
+            <div class="thumbnail">
+                <img src=${item.image}>
+                <div class="caption">
+                    <h3>${item.title}</h3>
+                    <pre>${item.description}</pre>
+                    <p>
+                        <a href="/content/${item.id}" class="btn btn-primary" role="button">Open</a>
+                        <label>${item.tier} $</label>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        % endfor
 
-        <div class="col-xs-6 col-md-3">
-            <a href="#" class="thumbnail">
-                <p>Bonus content 4</p>
-            </a>
-        </div>
     </div>
 
     <div class="row center-block">
@@ -75,11 +80,11 @@
                 <h2>Select ratio</h2>
                 <label>charity</label>
                 <input id="range1" type="range" min="0" max="100" value="0"/>
-                <input type="text" id="charity" name="charity"/>
+                <input type="text" id="charity" name="charity" value="0"/>
                 <br/>
                 <label>content</label>
                 <input id="range2" type="range" min="0" max="100" value="100"/>
-                <input type="text" id="content" name="content"/>
+                <input type="text" id="content" name="content" value="100"/>
             </div>
 
             <div class="btn-group btn-group-lg">
