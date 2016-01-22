@@ -1,6 +1,3 @@
-/**
- * Created by audi on 15.01.16.
- */
 var range1 = document.getElementById("range1");
 var range2 = document.getElementById("range2");
 var charityText = document.getElementById("charity");
@@ -8,12 +5,15 @@ var contentText = document.getElementById("content");
 
 function rang(r1, r2) {
     r1.addEventListener("input", function (w) {
-        r1.value = (w.target.value);
         charityText.value = w.target.value;
+				r2.value = 100-r1.value;
+        contentText.value = 100-r1.value;
+
     });
     r2.addEventListener("input", function (j) {
-        r2.value = (j.target.value);
         contentText.value = j.target.value;
+        r1.value = 100-r2.value;
+        charityText.value = 100-r2.value;
     });
 
 }

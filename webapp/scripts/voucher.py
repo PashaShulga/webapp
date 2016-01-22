@@ -1,5 +1,5 @@
-from pyramid_mailer.message import Message
-from pyramid_mailer.mailer import Mailer
+# from pyramid_mailer.message import Message
+# from pyramid_mailer.mailer import Mailer
 from itsdangerous import TimestampSigner
 import smtplib
 from email.mime.text import MIMEText
@@ -33,9 +33,9 @@ def send_mail(email_from, email_to, subj, text):
         server.quit()
 
 
-def _voucher(string, secret):
+def voucher(string, secret):
     s = TimestampSigner(secret)
     res = s.sign(string)
     print(res)
 
-
+voucher('str', 'secret-key')

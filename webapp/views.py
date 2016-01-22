@@ -187,12 +187,13 @@ def pay_methods(request):
             amount = request.POST['amount']
             content = request.POST['content']
             charity = request.POST['charity']
+            email = request.POST['email']
             if float(form.amount.data) >= 2.0:
                 _sum_content = float(amount) * float(content) / 100
                 _sum_charity = float(amount) * float(charity) / 100
                 bundle = DBSession.query(Bundle).filter(Bundle.date_end!=datetime.datetime.utcnow()).first()
                 if bundle is not None and (_sum_charity+_sum_content==float(amount)):
-                    new_order = Orders(sum_charity=_sum_charity, sum_content=_sum_content, mail=request.POST['email'], bundle_id=bundle.id)
+                    new_order = Orders(sum_charity=_sum_charity, sum_content=_sum_content, mail=email, bundle_id=bundle.id)
                     DBSession.add(new_order)
                     return {'message': 'OK'}
                 else:
