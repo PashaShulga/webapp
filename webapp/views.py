@@ -179,7 +179,7 @@ def bundles(request):
 def pay_methods(request):
     try:
         form = PaymentForm(request.POST)
-        if request.method == 'POST':
+        if request.method == 'POST' and request.unauthenticated_userid is not None:
             amount = request.POST['amount']
             content = request.POST['content']
             charity = request.POST['charity']
@@ -193,6 +193,8 @@ def pay_methods(request):
                     return {'message': 'OK'}
             else:
                 return {'message': 'Enter sum >= 2'}
+        else:
+            return {'message': 'Please, login'}
     except DBAPIError:
         return HTTPFound(location="/")
 
