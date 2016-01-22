@@ -3,9 +3,8 @@ from pyramid.httpexceptions import HTTPFound
 from .form import RegistrationForm, LoginForm, PaymentForm
 from sqlalchemy.exc import DBAPIError
 from passlib.apps import custom_app_context as check_password
-from mako.template import Template
 from .models import *
-
+from .scripts.voucher import send_mail
 
 from pyramid.view import (
     view_config,
@@ -15,7 +14,6 @@ from pyramid.security import (
     remember,
     forget,
     )
-import transaction
 import hashlib
 import time
 import datetime
@@ -76,7 +74,6 @@ def content(request):
 def index(request):
     try:
         form = PaymentForm(request.POST)
-        # mailer = request.registry['mailer']
         content_on_main = DBSession.query(Content).order_by(Content.tier).limit(4).all()
         _bonus = DBSession.query(Content).filter(Content.tier>=float(25.00)).limit(2).all()
         bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow()).first()
@@ -110,7 +107,6 @@ def login(request):
 
     if request.method == 'POST' and login is not None and password is not None:
         db_query = DBSession.query(Users).filter(Users.name == login).first()
-        print(db_query)
         if db_query is not None:
             if db_query.name == login and check_password.verify(password.encode('utf-8'), db_query.password):
                 headers = remember(request, login)
@@ -118,38 +114,46 @@ def login(request):
                                  headers=headers)
         message = 'Failed login'
 
-    return dict(
-            message=message,
-            url=request.application_url + '/login',
-            came_from=came_from,
-            form=form,
-    )
+    return {
+            'message': message,
+            'url': request.application_url + '/login',
+            'came_from': came_from,
+            'form': form,
+    }
 
 
 @view_config(route_name='logout', renderer='webapp:templates/logout.mako')
 def logout(request):
     headers = forget(request)
-    return HTTPFound(location = request.route_url('index'),
-                     headers = headers)
+    return HTTPFound(location=request.route_url('index'),
+                     headers=headers)
 
 
 @view_config(route_name='registration', renderer='webapp:templates/registration.mako')
 def register(request):
-    form = RegistrationForm(request.POST)
-    if request.method == 'POST' and form.validate():
-        new_user = Users()
-        new_user.name = form.username.data
-        new_user.mail = form.email.data
-        new_user.sex = form.sex.data
-        _hash = hashlib.sha224('{}'.format(time.time()).encode('utf-8')).hexdigest()
-        new_user.activate_code = str(request.application_url + '/activate/{}'.format(_hash))
-        if form.password.data.encode('utf8') == form.confirm_password.data.encode('utf8'):
-            new_user.set_password(form.password.data.encode('utf8'))
-        else:
-            return {'success': 'False'}
-        DBSession.add(new_user)
-        return HTTPFound(location=request.route_url('index'))
-    return {'form': form}
+    try:
+        form = RegistrationForm(request.POST)
+        if request.method == 'POST' and form.validate():
+            new_user = Users()
+            new_user.name = form.username.data
+            new_user.mail = form.email.data
+            new_user.sex = form.sex.data
+            _hash = hashlib.sha224('{}'.format(time.time()).encode('utf-8')).hexdigest()
+            code = str(request.application_url + '/activate/{}'.format(_hash))
+            new_user.activate_code = code
+            try:
+                send_mail('pavloshulga.95@gmail.com', form.email.data, 'bundle', code)
+            except:
+                pass
+            if form.password.data.encode('utf8') == form.confirm_password.data.encode('utf8'):
+                new_user.set_password(form.password.data.encode('utf8'))
+            else:
+                return {'message': 'False'}
+            DBSession.add(new_user)
+            return HTTPFound(location=request.route_url('index'))
+        return {'form': form}
+    except DBAPIError:
+        return {'message': 'False'}
 
 
 @view_config(route_name='end_reg', renderer='webapp:templates/confirm.mako')
