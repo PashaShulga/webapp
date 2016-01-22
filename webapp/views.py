@@ -150,10 +150,15 @@ def register(request):
             else:
                 return {'message': 'False'}
             DBSession.add(new_user)
-            return HTTPFound(location=request.route_url('index'))
+            return HTTPFound(location=request.route_url('verify'))
         return {'form': form}
     except DBAPIError:
         return {'message': 'False'}
+
+
+@view_config(route_name='verify', renderer='webapp:templates/verify.mako')
+def verify(request):
+    return {'message': 'check your email for activate account'}
 
 
 @view_config(route_name='end_reg', renderer='webapp:templates/confirm.mako')

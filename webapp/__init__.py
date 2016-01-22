@@ -29,6 +29,7 @@ def main(global_config, **settings):
     config.add_route('logout', '/logout')
     config.add_route('registration', '/registration')
     config.add_route('end_reg', '/activate/{a_code}')
+    config.add_route('verify', '/verify')
     config.add_route('confirm', '/confirm')
     config.add_route('content', '/content/{id}')
     config.add_route('bundles', '/bundles/{signature}')

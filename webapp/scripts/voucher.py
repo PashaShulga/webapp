@@ -37,5 +37,3 @@ def voucher(string, secret):
     s = TimestampSigner(secret)
     res = s.sign(string)
     print(res)
-
-voucher('str', 'secret-key')
