@@ -187,10 +187,12 @@ def pay_methods(request):
                 _sum_content = float(amount) * float(content) / 100
                 _sum_charity = float(amount) * float(charity) / 100
                 bundle = DBSession.query(Bundle).filter(Bundle.date_end!=datetime.datetime.utcnow()).first()
-                if bundle is not None and (_sum_charity+_sum_content==amount):
+                if bundle is not None and (_sum_charity+_sum_content==float(amount)):
                     new_order = Orders(sum_charity=_sum_charity, sum_content=_sum_content, mail=request.POST['email'], bundle_id=bundle.id)
                     DBSession.add(new_order)
                     return {'message': 'OK'}
+                else:
+                    return {'message': 'Bundle is not exist or sum content and sum charity != amount'}
             else:
                 return {'message': 'Enter sum >= 2'}
         else:
