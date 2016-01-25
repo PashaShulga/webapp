@@ -4,5 +4,4 @@
 <div class="main">
     <p>${message}</p>
 </div>
-
 </%block>

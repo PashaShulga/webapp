@@ -31,3 +31,4 @@ class LoginForm(Form):
 class PaymentForm(Form):
     amount = StringField('amount', [validators.Length(min=1, max=10)], filters=[strip_filter])
     email  = StringField('email', [validators.Length(min=1, max=255)], filters=[strip_filter])
+    card   = StringField('card', [validators.Length(min=16, max=16)], filters=[strip_filter])

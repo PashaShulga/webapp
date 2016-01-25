@@ -193,6 +193,7 @@ def pay_methods(request):
             content = request.POST['content']
             charity = request.POST['charity']
             email = request.POST['email']
+            credit_card = form.card.data
             if float(form.amount.data) >= 2.0:
                 _sum_content = float(amount) * float(content) / 100
                 _sum_charity = float(amount) * float(charity) / 100

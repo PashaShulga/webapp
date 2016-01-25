@@ -36,4 +36,4 @@ def send_mail(email_from, email_to, subj, text):
 def voucher(string, secret):
     s = TimestampSigner(secret)
     res = s.sign(string)
-    print(res)
+    return res
