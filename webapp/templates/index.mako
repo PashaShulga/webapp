@@ -68,7 +68,7 @@
                 </div>
                 <div class="input-group col-xs-6 col-md-3">
                     <span class="input-group-addon" id="sizing-addon2">amount</span>
-                    ${form.amount(class_="form-control", placeholder="amount")}
+                    ${form.amount(class_="form-control", placeholder="amount", value="25")}
                 </div>
                 <br/>
                 <div class="input-group col-xs-6 col-md-3">
@@ -89,7 +89,7 @@
 
                 <div class="btn-group btn-group-lg">
                     <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
-                        Buy Now
+                        Continue
                     </button>
                     <!-- Modal -->
                     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -98,7 +98,7 @@
                                 <div class="modal-header">
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                             aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                                    <h4 class="modal-title" id="myModalLabel">Credit cards</h4>
                                 </div>
                                 <div class="modal-body">
                                     <p>Please, enter the number of your payment card</p>

@@ -38,23 +38,23 @@ Base = declarative_base()
 class Users(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
-    name = Column(String(20))
+    # name = Column(String(20))
     mail = Column(String(50))
-    password = Column(String(512))
-    sex = Column(String(10))
-    is_active = Column(Boolean(), default=False)
-    activate_code = Column(String(512))
+    # password = Column(String(512))
+    # sex = Column(String(10))
+    # is_active = Column(Boolean(), default=False)
+    # activate_code = Column(String(512))
 
-    def verify_password(self, password):
-        # is it cleartext?
-        if password == self.password:
-            self.set_password(password)
+    # def verify_password(self, password):
+    #     is it cleartext?
+        # if password == self.password:
+        #     self.set_password(password)
 
-        return blogger_pwd_context.verify(password, self.password)
+        # return blogger_pwd_context.verify(password, self.password)
 
-    def set_password(self, password):
-        password_hash = blogger_pwd_context.encrypt(password)
-        self.password = password_hash
+    # def set_password(self, password):
+    #     password_hash = blogger_pwd_context.encrypt(password)
+    #     self.password = password_hash
         # return self.password
 
 

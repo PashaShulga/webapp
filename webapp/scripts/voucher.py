@@ -1,6 +1,6 @@
 # from pyramid_mailer.message import Message
 # from pyramid_mailer.mailer import Mailer
-from itsdangerous import TimestampSigner
+from itsdangerous import JSONWebSignatureSerializer, Signer
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -11,7 +11,7 @@ SMTP_PASS = 'Reload_777'
 ENCODING = 'utf-8'
 
 
-def send_mail(email_from, email_to, subj, text):
+def send_mail(email_to, subj, text, email_from='pavloshulga.95@gmail.com'):
     _msg = MIMEMultipart()
     server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
     _msg['from'] = Header(email_from, ENCODING)
@@ -33,7 +33,19 @@ def send_mail(email_from, email_to, subj, text):
         server.quit()
 
 
-def voucher(string, secret):
-    s = TimestampSigner(secret)
-    res = s.sign(string)
-    return res
+def voucher():
+    test_dict = {
+        'email': 'lol@lol.com',
+        'card': '123456789012345678901234567890',
+        'charity': 20,
+        'content': 80,
+        'amount': 25
+                }
+    s = JSONWebSignatureSerializer('secret', algorithm_name='HS512')
+    res = s.dumps(test_dict)
+    print(res)
+    l = s.loads(res)
+    print(l)
+
+
+# voucher()
