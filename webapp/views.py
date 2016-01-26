@@ -207,20 +207,18 @@ def pay_methods(request):
             if float(form.amount.data) >= 2.0:
                 bundle = DBSession.query(Bundle).filter(Bundle.date_end!=datetime.datetime.utcnow()).first()
                 if bundle is not None and (sum_charity+sum_content==float(amount)):
-
                     try:
                         code = request.application_url+'/verify/{}'.format(res.decode())
                         send_mail(email, 'you content', code)
+                        new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email, bundle_id=bundle.id)
+                        DBSession.add(new_order)
+                        if DBSession.query(Users).filter_by(mail=email).first() is None:
+                            new_user = Users()
+                            new_user.mail = email
+                            DBSession.add(new_user)
+                        return HTTPFound(location="/")
                     except:
-                        pass
-
-                    new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email, bundle_id=bundle.id)
-                    DBSession.add(new_order)
-                    if DBSession.query(Users).filter_by(mail=email).first() is None:
-                        new_user = Users()
-                        new_user.mail = email
-                        DBSession.add(new_user)
-                    return HTTPFound(location="/")
+                        return {'message': 'check you email sender addres'}
                 else:
                     return {'message': 'Bundle is not exist or sum content + sum charity != amount'}
             else:
