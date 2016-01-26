@@ -210,6 +210,7 @@ def pay_methods(request):
                     try:
                         code = request.application_url+'/verify/{}'.format(res.decode())
                         send_mail(email, 'you content', code)
+                        print(code)
                         new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email, bundle_id=bundle.id)
                         DBSession.add(new_order)
                         if DBSession.query(Users).filter_by(mail=email).first() is None:
