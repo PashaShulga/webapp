@@ -6,8 +6,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
 
-SMTP_USER = 'pavloshulga.95@gmail.com'
-SMTP_PASS = 'Reload_777'
+SMTP_USER = u'pavloshulga.95@gmail.com'
+SMTP_PASS = u'Reload_777'
 ENCODING = 'utf-8'
 
 
