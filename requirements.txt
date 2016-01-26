@@ -1,0 +1,6 @@
+itsdangerous
+sqlalchemy
+passlib
+pyramid_mailer
+psycopg2
+WTForms
