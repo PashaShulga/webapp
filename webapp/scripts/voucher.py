@@ -47,5 +47,5 @@ def voucher():
     l = s.loads(res)
     print(l)
 
-
+send_mail('PavloPython@ukr.net', 'dasa' ,'asdasfadfada')
 # voucher()
