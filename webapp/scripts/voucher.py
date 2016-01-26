@@ -13,7 +13,7 @@ ENCODING = 'utf-8'
 
 def send_mail(email_to, subj, text, email_from='pavloshulga.95@gmail.com'):
     _msg = MIMEMultipart()
-    server = smtplib.SMTP_SSL('smtp.gmail.com', 25)
+    server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
     _msg['from'] = Header(email_from, ENCODING)
     _msg['to'] = Header(email_to, ENCODING)
     _msg['subject'] = Header(subj, ENCODING)
