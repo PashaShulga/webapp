@@ -1,11 +1,11 @@
 <%inherit file="base.html"/>
-<%block name="main">
+<%block name="bundle">
     <div class="main-setting">
-        % if bundle is not None:
-            <h1 class="text-center">${bundle.title}</h1>
-        %else:
-            <h1 class="text-center">This bundle not active</h1>
-        % endif
+##         % if bundle is not None:
+##             <h1 class="text-center">${bundle.title}</h1>
+##         %else:
+##             <h1 class="text-center">This bundle not active</h1>
+##         % endif
 
         <div class="row">
             % for item in items:

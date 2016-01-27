@@ -1,0 +1,19 @@
+<%inherit file="base.html"/>
+<%block name="preview_bundles">
+    <div class="main-setting">
+<div class="row">
+            % for item in items:
+                <div class="col-sm-6 col-md-3">
+                    <div class="thumbnail">
+                        <div class="caption">
+                            <a href="/bundle/${item.id}"><h3>${item.title}</h3></a>
+                            <pre>${item.description}</pre>
+                                <p>${item.date_start}</p>
+                                <p>${item.date_end}</p>
+                        </div>
+                    </div>
+                </div>
+            % endfor
+        </div>
+    </div>
+</%block>

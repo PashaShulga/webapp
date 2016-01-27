@@ -35,7 +35,9 @@ def main(global_config, **settings):
     config.add_route('about', '/about')
     config.add_route('pay', '/pay')
     config.add_route('preview', '/preview')
+    config.add_route('preview_bundle', '/bundle_prev')
     config.add_route('b_content', '/bonus/{id}')
+    config.add_route('bundle', '/bundle/{id}')
     config.scan()
 
     return config.make_wsgi_app()

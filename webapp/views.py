@@ -35,7 +35,6 @@ def users_check(func):
 @view_config(route_name='preview', renderer='webapp:templates/preview.mako')
 def preview(request):
     try:
-        data = None
         # user = DBSession.query(Users).filter_by(name=request.unauthenticated_userid).first()
         # order = DBSession.query(Orders).filter_by(mail=user.mail).first()
         # if order.id is not None:
@@ -47,6 +46,18 @@ def preview(request):
                     'manufacture': data.manufacture}
     except DBAPIError:
         return HTTPFound(location='/')
+
+
+@view_config(route_name='preview_bundle', renderer='webapp:templates/preview_bundle.mako')
+def preview_bundle(request):
+    try:
+        bundles = DBSession.query(Bundle).all()
+        return {'items': bundles}
+    except Exception as e:
+        print(e)
+
+    return {}
+
 
 
 @view_config(route_name='content', renderer='webapp:templates/content.mako')
@@ -77,7 +88,8 @@ def index(request):
         form = PaymentForm(request.POST)
         content_on_main = DBSession.query(Content).order_by(Content.tier).limit(4).all()
         _bonus = DBSession.query(Content).filter(Content.tier>=float(25.00)).limit(2).all()
-        bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow()).first()
+        bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
+                                                Bundle.date_start<datetime.datetime.utcnow()).first()
         _sum = DBSession.query(func.sum(Orders.sum_charity)).all()
         _sold = DBSession.query(func.count(Orders.id)).all()
         return {'items': content_on_main,
@@ -92,7 +104,29 @@ def index(request):
     except DBAPIError:
         return HTTPFound(location='/')
 
-#
+
+@view_config(route_name='bundle', renderer='webapp:templates/bundle.mako')
+def bundle(request):
+    try:
+        form = PaymentForm(request.POST)
+        bundle = DBSession.query(Bundle).filter_by(id=request.matchdict['id']).first()
+        content_on_main = DBSession.query(Content).filter(Content.bundle_id==bundle.id).order_by(Content.tier).limit(4).all()
+        _bonus = DBSession.query(Content).filter(Content.tier>=float(25.00), Content.bundle_id==bundle.id).limit(2).all()
+        _sum = DBSession.query(func.sum(Orders.sum_charity)).all()
+        _sold = DBSession.query(func.count(Orders.id)).all()
+        return {'items': content_on_main,
+                'form': form,
+                'req': request.unauthenticated_userid,
+                'link': '/logout',
+                'total_raised': _sum[0][0],
+                'sold': _sold[0][0],
+                'bundle': bundle,
+                'bonus': _bonus
+            }
+    except AttributeError:
+        return HTTPFound(location='/')
+
+
 # @view_config(route_name='login', renderer='webapp:templates/login.mako')
 # @forbidden_view_config(renderer='webapp:templates/login.mako')
 # def login(request):
@@ -205,7 +239,8 @@ def pay_methods(request):
                 }
             res = itsden_signat.dumps(codec)
             if float(form.amount.data) >= 2.0:
-                bundle = DBSession.query(Bundle).filter(Bundle.date_end!=datetime.datetime.utcnow()).first()
+                bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
+                                                        Bundle.date_end>=datetime.datetime.utcnow()).first()
                 if bundle is not None and (sum_charity+sum_content==float(amount)):
                     try:
                         code = request.application_url+'/verify/{}'.format(res.decode())

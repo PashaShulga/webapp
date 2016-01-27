@@ -62,7 +62,7 @@ class Charity(Base):
     __tablename__ = 'charity'
     id = Column(Integer, primary_key=True)
     name = Column(String(128))
-    logo = Column(String(128), nullable=True)
+    logo = Column(String(128), nullable=False)
     description = Column(Text)
     bundle = relationship("Bundle", uselist=False, backref="charity")
 
@@ -80,8 +80,8 @@ class Bundle(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String(256))
     description = Column(Text)
-    date_start = Column(DateTime, nullable=True)
-    date_end = Column(DateTime, nullable=True)
+    date_start = Column(DateTime, nullable=False)
+    date_end = Column(DateTime, nullable=False)
     charity_id = Column(Integer, ForeignKey(Charity.id))
 
     # def __init__(self, title=None, description=None, date_start=None, date_end=None):
