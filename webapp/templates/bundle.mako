@@ -112,7 +112,5 @@
                 </div>
             </div>
         </form>
-
     </div>
-
 </%block>

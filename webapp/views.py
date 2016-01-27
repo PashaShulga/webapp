@@ -61,11 +61,16 @@ def bundle_preview(request):
 @view_config(route_name='content', renderer='webapp:templates/content.mako')
 def content(request):
     try:
-        dict_itsden = itsden_signat.loads(request.cookies['info'])
-        order = DBSession.query(Orders).filter_by(mail=dict_itsden['email']).first()
-        _sum = DBSession.query(func.sum(Orders.sum_charity+Orders.sum_content)).filter(Orders.mail==dict_itsden['email'])
+        dict_itsden = None
+        data = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
+        if data is not None:
+            dict_itsden = itsden_signat.loads(request.cookies[str(data.bundle_id)])
+        order = DBSession.query(Orders).filter(Orders.mail==dict_itsden['email'],
+                                               Orders.bundle_id==dict_itsden['bundle_id']).first()
+        _sum = DBSession.query(func.sum(Orders.sum_charity+Orders.sum_content)).filter(Orders.bundle_id==dict_itsden['bundle_id'])
         if order is not None:
-            get_content_by_id = DBSession.query(Content).filter(Content.id==request.matchdict['id'],Content.tier<=_sum[0][0]).first()
+            get_content_by_id = DBSession.query(Content).filter(Content.id==request.matchdict['id'],
+                                                                Content.tier<=_sum[0][0]).first()
             if get_content_by_id is not None:
                 return {'image': '../'+get_content_by_id.image,
                         'title': get_content_by_id.title,
@@ -84,16 +89,14 @@ def content(request):
 def index(request):
     try:
         form = PaymentForm(request.POST)
-        content_on_main = DBSession.query(Content).order_by(Content.tier).limit(4).all()
-        _bonus = DBSession.query(Content).filter(Content.tier>=float(25.00)).limit(2).all()
         bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
                                                 Bundle.date_start<datetime.datetime.utcnow()).first()
+        content_on_main = DBSession.query(Content).filter(Content.bundle_id==bundle.id).order_by(Content.tier).limit(4).all()
+        _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
         _sum = DBSession.query(func.sum(Orders.sum_charity)).all()
         _sold = DBSession.query(func.count(Orders.id)).all()
         return {'items': content_on_main,
                 'form': form,
-                'req': request.unauthenticated_userid,
-                'link': '/logout',
                 'total_raised': _sum[0][0],
                 'sold': _sold[0][0],
                 'bundle': bundle,
@@ -109,21 +112,29 @@ def bundle(request):
         form = PaymentForm(request.POST)
         _bundle = DBSession.query(Bundle).filter_by(id=request.matchdict['id']).first()
         content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).order_by(Content.tier).limit(4).all()
-        _bonus = DBSession.query(Content).filter(Content.tier>=float(25.00), Content.bundle_id==_bundle.id).limit(2).all()
+        _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00), Content.bundle_id==_bundle.id).limit(2).all()
         val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
         _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
         _sold = DBSession.query(func.count(Orders.id)).filter(Orders.bundle_id==_bundle.id).all()
-        return {'items': content_on_main,
+        response = {'items': content_on_main,
                 'form': form,
-                'req': request.unauthenticated_userid,
-                'link': '/logout',
                 'total_raised': _sum(val[0][0]),
                 'sold': _sold[0][0],
                 '_bundle': _bundle,
                 'bonus': _bonus
             }
+        return response
     except AttributeError:
         return HTTPFound(location='/')
+
+
+@view_config(route_name='verify', renderer='webapp:templates/verify.mako')
+def verify(request):
+    code = request.matchdict['code']
+    data = itsden_signat.loads(code)
+    response = Response()
+    response.set_cookie(data['bundle_id'], value=code, max_age=86400)
+    return HTTPFound(location=request.route_url('index'), headers=response.headers)
 
 
 # @view_config(route_name='login', renderer='webapp:templates/login.mako')
@@ -190,13 +201,6 @@ def bundle(request):
 #         return {'message': 'False'}
 
 
-@view_config(route_name='verify', renderer='webapp:templates/verify.mako')
-def verify(request):
-    code = request.matchdict['code']
-    response = Response()
-    response.set_cookie('info', value=code, max_age=86400)
-    return HTTPFound(location=request.route_url('index'), headers=response.headers)
-
 
 # @view_config(route_name='end_reg', renderer='webapp:templates/confirm.mako')
 # def end_reg(request):
@@ -234,19 +238,20 @@ def pay_methods(request):
                     'card': credit_card,
                     'charity': float(sum_charity),
                     'content': float(sum_content),
-                    'amount': float(amount)
+                    'amount': float(amount),
+                    'bundle_id': str(request.environ['HTTP_REFERER']).split('bundle/')[1]
                 }
             res = itsden_signat.dumps(codec)
             if float(form.amount.data) >= 2.0:
-                bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
-                                                        Bundle.date_end>=datetime.datetime.utcnow()).first()
-                if bundle is not None and (sum_charity+sum_content==float(amount)):
+                # bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
+                #                                         Bundle.date_end>=datetime.datetime.utcnow()).first()
+                if (sum_charity+sum_content==float(amount)):
                     try:
                         code = request.application_url+'/verify/{}'.format(res.decode())
-                        send_mail(email, 'you content', code)
-                        print(code)
-                        new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email, bundle_id=bundle.id)
+                        # send_mail(email, 'You code', code)
+                        new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email, bundle_id=codec['bundle_id'])
                         DBSession.add(new_order)
+                        print(code)
                         if DBSession.query(Users).filter_by(mail=email).first() is None:
                             new_user = Users()
                             new_user.mail = email
