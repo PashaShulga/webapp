@@ -40,10 +40,10 @@ def preview(request):
         # if order.id is not None:
         data = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
         return {'image': data.image,
-                    'title': data.title,
-                    'description': data.description,
-                    'link': None,
-                    'manufacture': data.manufacture}
+                'title': data.title,
+                'description': data.description,
+                'link': None,
+                'manufacture': data.manufacture}
     except DBAPIError:
         return HTTPFound(location='/')
 
@@ -116,12 +116,14 @@ def bundle(request):
         val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
         _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
         _sold = DBSession.query(func.count(Orders.id)).filter(Orders.bundle_id==_bundle.id).all()
+        charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
         response = {'items': content_on_main,
                 'form': form,
                 'total_raised': _sum(val[0][0]),
                 'sold': _sold[0][0],
                 '_bundle': _bundle,
-                'bonus': _bonus
+                'bonus': _bonus,
+                'charity': charity
             }
         return response
     except AttributeError:

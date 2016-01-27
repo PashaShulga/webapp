@@ -6,8 +6,15 @@
         %else:
             <h1 class="text-center">This bundle not active</h1>
         % endif
+        <div class="well" style="margin-left: auto; width: 30%">
+            <img src="${charity.logo}">
+            <h3>${charity.name}</h3>
+            <p>${charity.description}</p>
+        </div>
+
 
         <div class="row">
+
             % for item in items:
                 <div class="col-sm-6 col-md-3">
                     <div class="thumbnail">
