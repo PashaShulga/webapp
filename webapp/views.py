@@ -39,7 +39,7 @@ def preview(request):
         # order = DBSession.query(Orders).filter_by(mail=user.mail).first()
         # if order.id is not None:
         data = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
-        return {'image': '../'+data.image,
+        return {'image': data.image,
                     'title': data.title,
                     'description': data.description,
                     'link': None,
