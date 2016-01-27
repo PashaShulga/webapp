@@ -48,8 +48,8 @@ def preview(request):
         return HTTPFound(location='/')
 
 
-@view_config(route_name='preview_bundle', renderer='webapp:templates/preview_bundle.mako')
-def preview_bundle(request):
+@view_config(route_name='bundle_preview', renderer='webapp:templates/bundle_preview.mako')
+def bundle_preview(request):
     try:
         bundles = DBSession.query(Bundle).all()
         return {'items': bundles}
@@ -109,9 +109,9 @@ def index(request):
 def bundle(request):
     try:
         form = PaymentForm(request.POST)
-        bundle = DBSession.query(Bundle).filter_by(id=request.matchdict['id']).first()
-        content_on_main = DBSession.query(Content).filter(Content.bundle_id==bundle.id).order_by(Content.tier).limit(4).all()
-        _bonus = DBSession.query(Content).filter(Content.tier>=float(25.00), Content.bundle_id==bundle.id).limit(2).all()
+        _bundle = DBSession.query(Bundle).filter_by(id=request.matchdict['id']).first()
+        content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).order_by(Content.tier).limit(4).all()
+        _bonus = DBSession.query(Content).filter(Content.tier>=float(25.00), Content.bundle_id==_bundle.id).limit(2).all()
         _sum = DBSession.query(func.sum(Orders.sum_charity)).all()
         _sold = DBSession.query(func.count(Orders.id)).all()
         return {'items': content_on_main,
@@ -120,7 +120,7 @@ def bundle(request):
                 'link': '/logout',
                 'total_raised': _sum[0][0],
                 'sold': _sold[0][0],
-                'bundle': bundle,
+                '_bundle': _bundle,
                 'bonus': _bonus
             }
     except AttributeError:

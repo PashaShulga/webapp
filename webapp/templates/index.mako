@@ -11,7 +11,7 @@
             % for item in items:
                 <div class="col-sm-6 col-md-3">
                     <div class="thumbnail">
-                        <img src=${item.image}>
+                        <img src="${item.image}">
                         <div class="caption">
                             <h3>${item.title}</h3>
                             <pre>${item.description}</pre>
