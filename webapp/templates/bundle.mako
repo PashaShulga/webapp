@@ -66,23 +66,23 @@
                 </div>
                 <div class="input-group col-xs-6 col-md-3">
                     <span class="input-group-addon" id="sizing-addon2">amount</span>
-                    ${form.amount(class_="form-control", placeholder="amount", value="25")}
+                    ${form.amount(class_="form-control", placeholder="amount", value="25", required='')}
                 </div>
                 <br/>
                 <div class="input-group col-xs-6 col-md-3">
                     <span class="input-group-addon" id="sizing-addon2">email</span>
-                    ${form.email(class_='form-control', placeholder="email")}
+                    ${form.email(class_='form-control', placeholder="email", required='')}
                 </div>
 
                 <div class="input-group col-md-2">
                     <h2>Select ratio</h2>
                     <label>charity</label>
                     <input id="range1" type="range" min="0" max="100" value="0"/>
-                    <input type="text" id="charity" name="charity" value="0"/>
+                    <input type="text" id="charity" name="charity" value="0" required/>
                     <br/>
                     <label>content</label>
                     <input id="range2" type="range" min="0" max="100" value="100"/>
-                    <input type="text" id="content" name="content" value="100"/>
+                    <input type="text" id="content" name="content" value="100" required/>
                 </div>
 
                 <div class="btn-group btn-group-lg">
@@ -100,7 +100,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <p>Please, enter the number of your payment card</p>
-                                    ${form.card(class_='form-control', placeholder="card")}
+                                    ${form.card(class_='form-control', placeholder="card", required='')}
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

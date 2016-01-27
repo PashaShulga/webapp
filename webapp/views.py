@@ -18,7 +18,7 @@ import hashlib
 import time
 import datetime
 from itsdangerous import JSONWebSignatureSerializer
-
+from decimal import Decimal
 
 itsden_signat = JSONWebSignatureSerializer('eyJhbGciOiJIUzUxMiJ9', algorithm_name='HS512')
 
@@ -55,9 +55,7 @@ def bundle_preview(request):
         return {'items': bundles}
     except Exception as e:
         print(e)
-
-    return {}
-
+        return HTTPFound(location='/')
 
 
 @view_config(route_name='content', renderer='webapp:templates/content.mako')
@@ -112,13 +110,14 @@ def bundle(request):
         _bundle = DBSession.query(Bundle).filter_by(id=request.matchdict['id']).first()
         content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).order_by(Content.tier).limit(4).all()
         _bonus = DBSession.query(Content).filter(Content.tier>=float(25.00), Content.bundle_id==_bundle.id).limit(2).all()
-        _sum = DBSession.query(func.sum(Orders.sum_charity)).all()
-        _sold = DBSession.query(func.count(Orders.id)).all()
+        val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
+        _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
+        _sold = DBSession.query(func.count(Orders.id)).filter(Orders.bundle_id==_bundle.id).all()
         return {'items': content_on_main,
                 'form': form,
                 'req': request.unauthenticated_userid,
                 'link': '/logout',
-                'total_raised': _sum[0][0],
+                'total_raised': _sum(val[0][0]),
                 'sold': _sold[0][0],
                 '_bundle': _bundle,
                 'bonus': _bonus
