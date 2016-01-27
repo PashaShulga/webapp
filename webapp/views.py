@@ -72,7 +72,7 @@ def content(request):
             get_content_by_id = DBSession.query(Content).filter(Content.id==request.matchdict['id'],
                                                                 Content.tier<=_sum[0][0]).first()
             if get_content_by_id is not None:
-                return {'image': '../'+get_content_by_id.image,
+                return {'image': get_content_by_id.image,
                         'title': get_content_by_id.title,
                         'description': get_content_by_id.description,
                         'link': get_content_by_id.link,
