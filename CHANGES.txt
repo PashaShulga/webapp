@@ -7,23 +7,24 @@ NEED FIX BUGS:
 
 - Ok - figured it out - missing end date for the bundle. Can you make that a not-null field please? FIX!
 
-- pyramid_mailer :)
-
-- can you ensure that database columns that are required are nullable=False (bundle_id on content & orders,
-charity_id on bundle and any others that are needed for the app to work) (the start and end dates)
-
 - Please check for the start dates as well when displaying bundles, currently you only check for end date. I fix it.
 
 - /previous - showing previous bundles - this isn't implemented yet (or I missed it). FIX!
 
 - Please ensure an email address and $ amount are in the input fields - I can trigger an error by leaving them blank and submitting a credit card number. FIX!
 
-- I really would want a bundle specific download page, which is not the same as the front page, and just shows the content for download.
-
 - Appreciate this may not have been totally clear from the spec, but in the top right corner,
-please print the details of the charity we are donating to (like in the pdf document I attached).
+please print the details of the charity we are donating to (like in the pdf document I attached). FIX!
 
-- For some reason the $25 field gets cleared when I reload the page - that might be browser related. How browser you are use? I don't know what it is a bug.
+- pyramid_mailer. FIX!
+
+- can you ensure that database columns that are required are nullable=False (bundle_id on content & orders,
+charity_id on bundle and any others that are needed for the app to work) (the start and end dates)
+
+- I really would want a bundle specific download page, which is not the same as the front page, and just shows the content for download.
 
 - For an extra £50, can you add the user account bits back in - while still keeping the current checkout process
  and optionally allow people to create an account & login, where they will be able to see what they have bought in the past. Let me know if that works for you.
+
+
+- For some reason the $25 field gets cleared when I reload the page - that might be browser related. How browser you are use? I don't know what it is a bug. I not front-end developer and I don't know what it is

@@ -5,9 +5,8 @@ from sqlalchemy import (
     Text,
     String,
     DateTime,
-    Numeric,
     ForeignKey,
-    Boolean
+    DECIMAL
     )
 
 from sqlalchemy.sql import func
@@ -102,7 +101,7 @@ class Content(Base):
     manufacture = Column(String(50))
     link = Column(String(100))
     image = Column(String(100))
-    tier = Column(Numeric(precision=9, scale=2))
+    tier = Column(DECIMAL(precision=9, scale=2))
     bundle_id = Column(Integer, ForeignKey(Bundle.id))
 
     # def __init__(self, title=None, description=None, manufacture=None, link=None, image=None):
@@ -127,11 +126,11 @@ class RootFactory(object):
 class Orders(Base):
     __tablename__ = 'orders'
     id = Column(Integer, primary_key=True)
-    sum_content = Column(Numeric(precision=9, scale=2))
-    sum_charity = Column(Numeric(precision=9, scale=2))
+    sum_content = Column(DECIMAL(precision=9, scale=2), nullable=False)
+    sum_charity = Column(DECIMAL(precision=9, scale=2), nullable=False)
     bundle_id = Column(Integer, ForeignKey(Bundle.id))
-    timestamp = Column(DateTime, default=datetime.datetime.utcnow())
-    mail = Column(String(50))
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow(), nullable=False)
+    mail = Column(String(50), nullable=False)
 
     def __init__(self, sum_content=None, sum_charity=None, bundle_id=None, timestamp=datetime.datetime.utcnow(), mail=None):
         self.sum_content = sum_content

@@ -11,8 +11,6 @@
             <h3>${charity.name}</h3>
             <p>${charity.description}</p>
         </div>
-
-
         <div class="row">
 
             % for item in items:
@@ -61,7 +59,6 @@
         </div>
         <br/>
         <form action="/pay" method="post" class="form-group">
-
             <div class="">
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-default" value="2">2$</button>
@@ -84,12 +81,12 @@
                 <div class="input-group col-md-2">
                     <h2>Select ratio</h2>
                     <label>charity</label>
-                    <input id="range1" type="range" min="0" max="100" value="0"/>
-                    <input type="text" id="charity" name="charity" value="0" required/>
+                    <input id="range1" type="range" min="0" max="100" value="50"/>
+                    <input type="text" id="charity" name="charity" value="50" required/>
                     <br/>
                     <label>content</label>
-                    <input id="range2" type="range" min="0" max="100" value="100"/>
-                    <input type="text" id="content" name="content" value="100" required/>
+                    <input id="range2" type="range" min="0" max="100" value="50"/>
+                    <input type="text" id="content" name="content" value="50" required/>
                 </div>
 
                 <div class="btn-group btn-group-lg">

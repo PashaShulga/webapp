@@ -1,10 +1,13 @@
 from pyramid.response import Response
+from pyramid.renderers import render_to_response
 from pyramid.httpexceptions import HTTPFound
 from .form import RegistrationForm, LoginForm, PaymentForm
 from sqlalchemy.exc import DBAPIError
 from passlib.apps import custom_app_context as check_password
 from .models import *
 from .scripts.voucher import send_mail
+from pyramid_mailer.message import Message
+from pyramid_mailer.mailer import Mailer
 
 from pyramid.view import (
     view_config,
@@ -14,6 +17,7 @@ from pyramid.security import (
     remember,
     forget,
     )
+
 import hashlib
 import time
 import datetime
@@ -21,7 +25,10 @@ from itsdangerous import JSONWebSignatureSerializer
 from decimal import Decimal
 
 itsden_signat = JSONWebSignatureSerializer('eyJhbGciOiJIUzUxMiJ9', algorithm_name='HS512')
-
+mailer = Mailer()
+RECIPIENTS = 'pavloshulga.95@gmail.com'
+SUBJECT = 'Bundle'
+SENDER = 'localhost'
 
 def users_check(func):
     def wrapper(user_name):
@@ -85,24 +92,29 @@ def content(request):
         return preview(request)
 
 
-@view_config(route_name='index', renderer='webapp:templates/index.mako')
+@view_config(route_name='index')
 def index(request):
     try:
         form = PaymentForm(request.POST)
-        bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
+        _bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
                                                 Bundle.date_start<datetime.datetime.utcnow()).first()
-        content_on_main = DBSession.query(Content).filter(Content.bundle_id==bundle.id).order_by(Content.tier).limit(4).all()
+        content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).order_by(Content.tier).limit(4).all()
         _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
-        _sum = DBSession.query(func.sum(Orders.sum_charity)).all()
+        val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
+        _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
         _sold = DBSession.query(func.count(Orders.id)).all()
-        return {'items': content_on_main,
-                'form': form,
-                'total_raised': _sum[0][0],
-                'sold': _sold[0][0],
-                'bundle': bundle,
-                'bonus': _bonus
+        charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
+        response = {
+             'items': content_on_main,
+             'form': form,
+             'total_raised': _sum(val[0][0]),
+             'sold': _sold[0][0],
+             'bundle': _bundle,
+             'bonus': _bonus,
+             'charity': charity
             }
-    except DBAPIError:
+        return render_to_response(renderer_name='webapp:templates/index.mako', value=response, request=request)
+    except:
         return HTTPFound(location='/')
 
 
@@ -117,7 +129,8 @@ def bundle(request):
         _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
         _sold = DBSession.query(func.count(Orders.id)).filter(Orders.bundle_id==_bundle.id).all()
         charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
-        response = {'items': content_on_main,
+        response = {
+                'items': content_on_main,
                 'form': form,
                 'total_raised': _sum(val[0][0]),
                 'sold': _sold[0][0],
@@ -126,17 +139,22 @@ def bundle(request):
                 'charity': charity
             }
         return response
-    except AttributeError:
+    except Exception:
+        # return {'message': 'No active bundles'}
         return HTTPFound(location='/')
 
 
 @view_config(route_name='verify', renderer='webapp:templates/verify.mako')
 def verify(request):
-    code = request.matchdict['code']
-    data = itsden_signat.loads(code)
-    response = Response()
-    response.set_cookie(data['bundle_id'], value=code, max_age=86400)
-    return HTTPFound(location=request.route_url('index'), headers=response.headers)
+    try:
+        code = request.matchdict['code']
+        data = itsden_signat.loads(code)
+        _bundle = DBSession.query(Bundle).filter_by(id=data['bundle_id']).first()
+        response = Response()
+        response.set_cookie(u'{}'.format(data['bundle_id']), value=code, max_age=u'{}'.format(int(time.time() - _bundle.date_end.timestamp()) * -1 ))
+        return HTTPFound(location=request.route_url('index'), headers=response.headers)
+    except DBAPIError:
+        return HTTPFound(location=request.route_url('index'))
 
 
 # @view_config(route_name='login', renderer='webapp:templates/login.mako')
@@ -235,22 +253,27 @@ def pay_methods(request):
             credit_card = form.card.data
             sum_content = float(amount) * float(content) / 100
             sum_charity = float(amount) * float(charity) / 100
+            _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
+                                                     Bundle.date_end>=datetime.datetime.utcnow()).first()
             codec = {
-                    'email': email,
-                    'card': credit_card,
-                    'charity': float(sum_charity),
-                    'content': float(sum_content),
-                    'amount': float(amount),
-                    'bundle_id': str(request.environ['HTTP_REFERER']).split('bundle/')[1]
-                }
+                'email': email,
+                'card': credit_card,
+                'charity': float(sum_charity),
+                'content': float(sum_content),
+                'amount': float(amount),
+                'bundle_id': _bundle.id
+            }
             res = itsden_signat.dumps(codec)
             if float(form.amount.data) >= 2.0:
-                # bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
-                #                                         Bundle.date_end>=datetime.datetime.utcnow()).first()
                 if (sum_charity+sum_content==float(amount)):
                     try:
                         code = request.application_url+'/verify/{}'.format(res.decode())
                         # send_mail(email, 'You code', code)
+                        message = Message(subject=SUBJECT,
+                                          sender=SENDER,
+                                          recipients=[RECIPIENTS],
+                                          body='Your link {}'.format(code))
+                        mailer.send(message)
                         new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email, bundle_id=codec['bundle_id'])
                         DBSession.add(new_order)
                         print(code)
