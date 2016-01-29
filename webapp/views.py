@@ -74,7 +74,8 @@ def content(request):
             dict_itsden = itsden_signat.loads(request.cookies[str(data.bundle_id)])
         order = DBSession.query(Orders).filter(Orders.mail==dict_itsden['email'],
                                                Orders.bundle_id==dict_itsden['bundle_id']).first()
-        _sum = DBSession.query(func.sum(Orders.sum_charity+Orders.sum_content)).filter(Orders.bundle_id==dict_itsden['bundle_id'])
+        _sum = DBSession.query(func.sum(Orders.sum_charity+Orders.sum_content)).\
+            filter(Orders.bundle_id==dict_itsden['bundle_id'])
         if order is not None:
             get_content_by_id = DBSession.query(Content).filter(Content.id==request.matchdict['id'],
                                                                 Content.tier<=_sum[0][0]).first()
@@ -98,7 +99,8 @@ def index(request):
         form = PaymentForm(request.POST)
         _bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
                                                 Bundle.date_start<datetime.datetime.utcnow()).first()
-        content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).order_by(Content.tier).limit(4).all()
+        content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
+            order_by(Content.tier).limit(4).all()
         _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
         val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
         _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
@@ -123,8 +125,10 @@ def bundle(request):
     try:
         form = PaymentForm(request.POST)
         _bundle = DBSession.query(Bundle).filter_by(id=request.matchdict['id']).first()
-        content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).order_by(Content.tier).limit(4).all()
-        _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00), Content.bundle_id==_bundle.id).limit(2).all()
+        content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
+            order_by(Content.tier).limit(4).all()
+        _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00),
+                                                 Content.bundle_id==_bundle.id).limit(2).all()
         val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
         _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
         _sold = DBSession.query(func.count(Orders.id)).filter(Orders.bundle_id==_bundle.id).all()
@@ -151,7 +155,8 @@ def verify(request):
         data = itsden_signat.loads(code)
         _bundle = DBSession.query(Bundle).filter_by(id=data['bundle_id']).first()
         response = Response()
-        response.set_cookie(u'{}'.format(data['bundle_id']), value=code, max_age=u'{}'.format(int(time.time() - _bundle.date_end.timestamp()) * -1 ))
+        response.set_cookie(u'{}'.format(data['bundle_id']),
+                            value=code, max_age=u'{}'.format(int(time.time()-_bundle.date_end.timestamp()) * -1 ))
         return HTTPFound(location=request.route_url('index'), headers=response.headers)
     except DBAPIError:
         return HTTPFound(location=request.route_url('index'))
@@ -274,7 +279,8 @@ def pay_methods(request):
                                           recipients=[RECIPIENTS],
                                           body='Your link {}'.format(code))
                         mailer.send(message)
-                        new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email, bundle_id=codec['bundle_id'])
+                        new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email,
+                                           bundle_id=codec['bundle_id'])
                         DBSession.add(new_order)
                         print(code)
                         if DBSession.query(Users).filter_by(mail=email).first() is None:
@@ -300,7 +306,8 @@ def bonus_content(request):
         order = DBSession.query(Orders).filter_by(mail=dict_itsden['email']).first()
         _sum = DBSession.query(func.sum(Orders.sum_charity+Orders.sum_content)).filter(Orders.mail==dict_itsden['email'])
         if order is not None:
-            get_content_by_id = DBSession.query(Content).filter(Content.id==request.matchdict['id'],Content.tier<=_sum[0][0]).first()
+            get_content_by_id = DBSession.query(Content).filter(Content.id==request.matchdict['id'],
+                                                                Content.tier<=_sum[0][0]).first()
             if get_content_by_id is not None:
                 return {'image': '../'+get_content_by_id.image,
                         'title': get_content_by_id.title,

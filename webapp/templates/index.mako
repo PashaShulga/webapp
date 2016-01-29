@@ -82,12 +82,12 @@
                 <div class="input-group col-md-2">
                     <h2>Select ratio</h2>
                     <label>charity</label>
-                    <input id="range1" type="range" min="0" max="100" value="0"/>
-                    <input type="text" id="charity" name="charity" value="0"/>
+                    <input id="range1" type="range" min="0" max="100" value="50"/>
+                    <input type="text" id="charity" name="charity" value="50"/>
                     <br/>
                     <label>content</label>
-                    <input id="range2" type="range" min="0" max="100" value="100"/>
-                    <input type="text" id="content" name="content" value="100"/>
+                    <input id="range2" type="range" min="0" max="100" value="50"/>
+                    <input type="text" id="content" name="content" value="50"/>
                 </div>
 
                 <div class="btn-group btn-group-lg">
