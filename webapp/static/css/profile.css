@@ -3,26 +3,6 @@
 @import url('http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css');
 @import url('http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic');
 
-body,
-html {
-    width: 100%;
-    height: 100%;
-    font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-weight: 400;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-th,
-b,
-strong {
-    font-weight: 700;
-}
-
 .lead,
 .panel-heading {
     font-size: 16px;
@@ -53,11 +33,10 @@ strong {
 
 /* Page styles */
 
-body {
-    padding-top: 70px;
-    background: url('http://www.stripegenerator.com/generators/generate_stripes.php?fore=f8f8f8&h=30&w=20&p=20&back1=fcfcfcfdfd&back2=dddddd&gt=0&d=0&shadow=0') repeat;
-    background-attachment: fixed;
-}
+/*body {*/
+    /*background: url('../img/generate_stripes.png') repeat;*/
+    /*background-attachment: fixed;*/
+/*}*/
 
 .profile-panel, .academic-panel, .achievements-panel, .projects-panel {
 

@@ -212,8 +212,6 @@ def logout(request):
 def register(request):
     try:
         form = RegistrationForm(request.POST)
-        print(form.validate())
-        print(request.POST['reg_agree'])
         try:
             if request.method == 'POST' and form.validate() and request.POST['reg_agree'] == 'on':
                 new_user = Users()
@@ -235,14 +233,20 @@ def register(request):
         except:
             return {'form': form, 'message': 'Confirm the license'}
     except DBAPIError:
-        print(4444)
         return {'message': 'False'}
 
 
 @view_config(route_name='account', renderer='webapp:templates/account.mako')
 def user(request):
-    print(request.matchdict['parameters'])
-    return {'message': 'hi'}
+    if request.unauthenticated_userid is not None:
+        user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first()
+        try:
+            user_order_history = DBSession.query(Orders, Bundle)
+            records = user_order_history.join(Bundle, Bundle.id == Orders.bundle_id).filter(
+                    Orders.mail==request.unauthenticated_userid).order_by(Orders.timestamp).all()
+            return {'user': user, 'query': records}
+        except DBAPIError:
+            return HTTPFound(location='/')
 
 # @view_config(route_name='end_reg', renderer='webapp:templates/confirm.mako')
 # def end_reg(request):
