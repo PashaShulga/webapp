@@ -18,32 +18,8 @@
     <![endif]-->
 </head>
 <body>
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/">
-                <img alt="Brand" src="../static/img/logo.png" style="width: 35px; height: 35px;">
-            </a>
-        </div>
+<%include file="header.mako"/>
 
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <!--?<li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>-->
-                <li><a href="/about">About</a></li>
-                <li><a href="/bundle_preview">bundles</a></li>
-            </ul>
-            <!--?<ul class="nav navbar-nav navbar-right">-->
-                <!--?% if req is not None:-->
-                        <!--?<li><a href='/logout'>logout</a></li>-->
-                <!--?%else:-->
-                    <!--?<li><a href='/login'>login</a></li>-->
-                <!--?% endif-->
-            <!--?</ul>-->
-        </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
-</nav>
 <%block name="content"/>
 <%block name="main"/>
 <%block name="pay"/>
@@ -51,6 +27,7 @@
 <%block name="about"/>
 <%block name="preview_bundles"/>
 <%block name="bundle"/>
+<%block name="account"/>
 </body>
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>

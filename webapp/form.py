@@ -16,11 +16,11 @@ strip_filter = lambda x: x.strip() if x else None
 
 
 class RegistrationForm(Form):
-    username = StringField('username', [validators.Length(min=1, max=255)], filters=[strip_filter])
+    # username = StringField('username', [validators.Length(min=1, max=255)], filters=[strip_filter])
     email =    StringField('email', [validators.Length(min=1, max=255)], filters=[strip_filter])
     password = PasswordField('password', [validators.Length(min=3)])
     confirm_password = PasswordField('confirm_password', [validators.Length(min=3)])
-    sex = RadioField('Sex', choices=[('male', 'male'), ('female', 'female')])
+    # sex = RadioField('Sex', choices=[('male', 'male'), ('female', 'female')])
 
 
 class LoginForm(Form):

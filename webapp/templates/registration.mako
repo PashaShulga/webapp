@@ -8,7 +8,7 @@
 
 <!-- REGISTRATION FORM -->
 <div class="text-center" style="padding:50px 0">
-	<div class="logo">register</div>
+	<div class="logo">${message}</div>
 	<!-- Main Form -->
 	<div class="login-form-1">
 		<form id="register-form" class="text-left" action="/registration" method="post">
@@ -17,7 +17,7 @@
 				<div class="login-group">
 					<div class="form-group">
 						<label for="reg_username" class="sr-only">Email address</label>
-                        ${form.username(class_="form-control", placeholder="username")}
+                        ${form.email(class_="form-control", placeholder="email")}
 					</div>
 					<div class="form-group">
 						<label for="reg_password" class="sr-only">Password</label>
@@ -27,14 +27,9 @@
 						<label for="reg_password_confirm" class="sr-only">Password Confirm</label>
                         ${form.confirm_password(class_="form-control", placeholder="confirm password")}
 					</div>
-					<div class="form-group">
-						<label for="reg_email" class="sr-only">Email</label>
-                        ${form.email(class_="form-control", placeholder="email")}
-					</div>
-					<div class="form-group login-group-checkbox">
-
-                        ${form.sex(class_="form-control")}
-					</div>
+## 					<div class="form-group login-group-checkbox">
+##                         ${form.sex(class_="form-control")}
+## 					</div>
 
 					<div class="form-group login-group-checkbox">
 						<input type="checkbox" class="" id="reg_agree" name="reg_agree">

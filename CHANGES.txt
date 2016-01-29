@@ -26,5 +26,5 @@ charity_id on bundle and any others that are needed for the app to work) (the st
 - For an extra £50, can you add the user account bits back in - while still keeping the current checkout process
  and optionally allow people to create an account & login, where they will be able to see what they have bought in the past. Let me know if that works for you.
 
-
-- For some reason the $25 field gets cleared when I reload the page - that might be browser related. How browser you are use? I don't know what it is a bug. I not front-end developer and I don't know what it is
+- For some reason the $25 field gets cleared when I reload the page - that might be browser related.
+ How browser you are use? I don't know what it is a bug. I not front-end developer and I don't know what it is a bug:)

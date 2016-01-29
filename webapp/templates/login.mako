@@ -18,7 +18,7 @@
 				<div class="login-group">
 					<div class="form-group">
 						<label for="lg_password" class="sr-only">username</label>
-                        ${form.username(class_="form-control", placeholder="username")}
+                        ${form.username(class_="form-control", placeholder="email")}
 					</div>
                     <div class="form-group">
 						<label for="lg_password" class="sr-only">Password</label>

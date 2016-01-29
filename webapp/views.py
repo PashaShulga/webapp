@@ -30,14 +30,6 @@ RECIPIENTS = 'pavloshulga.95@gmail.com'
 SUBJECT = 'Bundle'
 SENDER = 'localhost'
 
-def users_check(func):
-    def wrapper(user_name):
-        if user_name is not None:
-            query = DBSession.query(Users).filter(Users.name == user_name).first()
-            if query.is_active:
-                func()
-                return True
-
 
 @view_config(route_name='preview', renderer='webapp:templates/preview.mako')
 def preview(request):
@@ -45,12 +37,16 @@ def preview(request):
         # user = DBSession.query(Users).filter_by(name=request.unauthenticated_userid).first()
         # order = DBSession.query(Orders).filter_by(mail=user.mail).first()
         # if order.id is not None:
+        user = None
+        if request.unauthenticated_userid is not None:
+            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
         data = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
         return {'image': data.image,
                 'title': data.title,
                 'description': data.description,
                 'link': None,
-                'manufacture': data.manufacture}
+                'manufacture': data.manufacture,
+                'user': user}
     except DBAPIError:
         return HTTPFound(location='/')
 
@@ -58,8 +54,11 @@ def preview(request):
 @view_config(route_name='bundle_preview', renderer='webapp:templates/bundle_preview.mako')
 def bundle_preview(request):
     try:
+        user = None
+        if request.unauthenticated_userid is not None:
+            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
         bundles = DBSession.query(Bundle).all()
-        return {'items': bundles}
+        return {'items': bundles, 'user': user}
     except Exception as e:
         print(e)
         return HTTPFound(location='/')
@@ -69,6 +68,9 @@ def bundle_preview(request):
 def content(request):
     try:
         dict_itsden = None
+        user = None
+        if request.unauthenticated_userid is not None:
+            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
         data = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
         if data is not None:
             dict_itsden = itsden_signat.loads(request.cookies[str(data.bundle_id)])
@@ -84,7 +86,8 @@ def content(request):
                         'title': get_content_by_id.title,
                         'description': get_content_by_id.description,
                         'link': get_content_by_id.link,
-                        'manufacture': get_content_by_id.manufacture}
+                        'manufacture': get_content_by_id.manufacture,
+                        'user': user}
             else:
                 return preview(request)
         else:
@@ -93,9 +96,10 @@ def content(request):
         return preview(request)
 
 
-@view_config(route_name='index')
+@view_config(route_name='index', renderer='webapp:templates/index.mako')
 def index(request):
     try:
+        user = None
         form = PaymentForm(request.POST)
         _bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
                                                 Bundle.date_start<datetime.datetime.utcnow()).first()
@@ -106,6 +110,8 @@ def index(request):
         _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
         _sold = DBSession.query(func.count(Orders.id)).all()
         charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
+        if request.unauthenticated_userid is not None:
+            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
         response = {
              'items': content_on_main,
              'form': form,
@@ -113,9 +119,10 @@ def index(request):
              'sold': _sold[0][0],
              'bundle': _bundle,
              'bonus': _bonus,
-             'charity': charity
+             'charity': charity,
+             'user': user
             }
-        return render_to_response(renderer_name='webapp:templates/index.mako', value=response, request=request)
+        return response
     except:
         return HTTPFound(location='/')
 
@@ -123,6 +130,9 @@ def index(request):
 @view_config(route_name='bundle', renderer='webapp:templates/bundle.mako')
 def bundle(request):
     try:
+        user = None
+        if request.unauthenticated_userid is not None:
+            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
         form = PaymentForm(request.POST)
         _bundle = DBSession.query(Bundle).filter_by(id=request.matchdict['id']).first()
         content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
@@ -140,7 +150,8 @@ def bundle(request):
                 'sold': _sold[0][0],
                 '_bundle': _bundle,
                 'bonus': _bonus,
-                'charity': charity
+                'charity': charity,
+                'user': user
             }
         return response
     except Exception:
@@ -162,70 +173,76 @@ def verify(request):
         return HTTPFound(location=request.route_url('index'))
 
 
-# @view_config(route_name='login', renderer='webapp:templates/login.mako')
-# @forbidden_view_config(renderer='webapp:templates/login.mako')
-# def login(request):
-#     login_url = request.route_url('login')
-#     referrer = request.url
-#     if referrer == login_url:
-#         referrer = 'index' # never use the login form itself as came_from
-#     came_from = request.params.get('came_from', referrer)
-#     form = LoginForm(request.POST)
-#     message = 'Login'
-#     login = form.username.data
-#     password = form.password.data
-#
-#     if request.method == 'POST' and login is not None and password is not None:
-#         db_query = DBSession.query(Users).filter(Users.name == login).first()
-#         if db_query is not None:
-#             if db_query.name == login and check_password.verify(password.encode('utf-8'), db_query.password):
-#                 headers = remember(request, login)
-#                 return HTTPFound(location=request.route_url('index'),
-#                                  headers=headers)
-#         message = 'Failed login'
-#
-#     return {
-#             'message': message,
-#             'url': request.application_url + '/login',
-#             'came_from': came_from,
-#             'form': form,
-#     }
-#
-#
-# @view_config(route_name='logout', renderer='webapp:templates/logout.mako')
-# def logout(request):
-#     headers = forget(request)
-#     return HTTPFound(location=request.route_url('index'),
-#                      headers=headers)
-#
-#
-# @view_config(route_name='registration', renderer='webapp:templates/registration.mako')
-# def register(request):
-#     try:
-#         form = RegistrationForm(request.POST)
-#         if request.method == 'POST' and form.validate():
-#             new_user = Users()
-#             new_user.name = form.username.data
-#             new_user.mail = form.email.data
-#             new_user.sex = form.sex.data
-#             _hash = hashlib.sha224('{}'.format(time.time()).encode('utf-8')).hexdigest()
-#             code = str(request.application_url + '/activate/{}'.format(_hash))
-#             new_user.activate_code = code
-#             try:
-#                 send_mail(form.email.data, 'bundle', code)
-#             except:
-#                 pass
-#             if form.password.data.encode('utf8') == form.confirm_password.data.encode('utf8'):
-#                 new_user.set_password(form.password.data.encode('utf8'))
-#             else:
-#                 return {'message': 'False'}
-#             DBSession.add(new_user)
-#             return HTTPFound(location=request.route_url('verify'))
-#         return {'form': form}
-#     except DBAPIError:
-#         return {'message': 'False'}
+@view_config(route_name='login', renderer='webapp:templates/login.mako')
+@forbidden_view_config(renderer='webapp:templates/login.mako')
+def login(request):
+    login_url = request.route_url('login')
+    referrer = request.url
+    if referrer == login_url:
+        referrer = 'index' # never use the login form itself as came_from
+    came_from = request.params.get('came_from', referrer)
+    form = LoginForm(request.POST)
+    message = 'Login'
+    login = form.username.data
+    password = form.password.data
+    if request.method == 'POST' and login is not None and password is not None:
+        db_query = DBSession.query(Users).filter(Users.mail == login).first()
+        if db_query is not None:
+            if db_query.mail == login and check_password.verify(password.encode('utf-8'), db_query.password):
+                headers = remember(request, login)
+                return HTTPFound(location=request.route_url('index'),
+                                 headers=headers)
+        message = 'Failed login'
+    return {
+            'message': message,
+            'url': request.application_url + '/login',
+            'came_from': came_from,
+            'form': form,
+    }
 
 
+@view_config(route_name='logout', renderer='webapp:templates/logout.mako')
+def logout(request):
+    headers = forget(request)
+    return HTTPFound(location=request.route_url('index'),
+                     headers=headers)
+
+
+@view_config(route_name='registration', renderer='webapp:templates/registration.mako')
+def register(request):
+    try:
+        form = RegistrationForm(request.POST)
+        print(form.validate())
+        print(request.POST['reg_agree'])
+        try:
+            if request.method == 'POST' and form.validate() and request.POST['reg_agree'] == 'on':
+                new_user = Users()
+                # new_user.name = form.username.data
+                new_user.mail = form.email.data
+                # new_user.sex = form.sex.data
+                _hash = hashlib.sha224('{}'.format(time.time()).encode('utf-8')).hexdigest()
+                # code = str(request.application_url + '/activate/{}'.format(_hash))
+                # new_user.activate_code = code
+                # try:
+                #     send_mail(form.email.data, 'bundle', code)
+                # except:
+                #     pass
+                if form.password.data.encode('utf8') == form.confirm_password.data.encode('utf8'):
+                    new_user.set_password(form.password.data.encode('utf8'))
+                DBSession.add(new_user)
+                return HTTPFound(location=request.route_url('index'))
+            return {'form': form, 'message': 'Register'}
+        except:
+            return {'form': form, 'message': 'Confirm the license'}
+    except DBAPIError:
+        print(4444)
+        return {'message': 'False'}
+
+
+@view_config(route_name='account', renderer='webapp:templates/account.mako')
+def user(request):
+    print(request.matchdict['parameters'])
+    return {'message': 'hi'}
 
 # @view_config(route_name='end_reg', renderer='webapp:templates/confirm.mako')
 # def end_reg(request):
@@ -243,7 +260,10 @@ def verify(request):
 
 @view_config(route_name='about', renderer='webapp:templates/about.mako')
 def about(request):
-    return {'message': 'about'}
+    user = None
+    if request.unauthenticated_userid is not None:
+        user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
+    return {'user': user}
 
 
 @view_config(route_name='pay', renderer='webapp:templates/pay.mako')
@@ -302,6 +322,9 @@ def pay_methods(request):
 def bonus_content(request):
     try:
         # if request.unauthenticated_userid is not None:
+        user = None
+        if request.unauthenticated_userid is not None:
+            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
         dict_itsden = itsden_signat.loads(request.cookies['info'])
         order = DBSession.query(Orders).filter_by(mail=dict_itsden['email']).first()
         _sum = DBSession.query(func.sum(Orders.sum_charity+Orders.sum_content)).filter(Orders.mail==dict_itsden['email'])
@@ -313,7 +336,8 @@ def bonus_content(request):
                         'title': get_content_by_id.title,
                         'description': get_content_by_id.description,
                         'link': get_content_by_id.link,
-                        'manufacture': get_content_by_id.manufacture}
+                        'manufacture': get_content_by_id.manufacture,
+                        'user': user}
             else:
                 return preview(request)
         else:
