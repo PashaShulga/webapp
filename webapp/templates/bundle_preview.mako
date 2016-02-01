@@ -8,8 +8,8 @@
                         <div class="caption">
                             <a href="/bundle/${item.id}"><h3>${item.title}</h3></a>
                             <pre>${item.description}</pre>
-                                <p><strong>Start date:</strong> ${item.date_start}</p>
-                                <p><strong>End date:</strong> ${item.date_end}</p>
+                                <p><strong>Start date:</strong> ${item.date_start.strftime("%Y-%m-%d")}</p>
+                                <p><strong>End date:</strong> ${item.date_end.strftime("%Y-%m-%d")}</p>
                         </div>
                     </div>
                 </div>
