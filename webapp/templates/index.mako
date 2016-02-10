@@ -48,9 +48,8 @@
                     </div>
                 </div>
             % endfor
-
         </div>
-
+        % if bundle != []:
         <div class="row center-block">
             <div class="col-xs-5 col-md-3">
                 <ul class="nav-justified">
@@ -60,7 +59,6 @@
             </div>
         </div>
         <br/>
-        % if bundle != []:
         <form action="/pay" method="post" class="form-group">
 
             <div class="">
