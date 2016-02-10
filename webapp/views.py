@@ -102,19 +102,26 @@ def content(request):
 @view_config(route_name='index', renderer='webapp:templates/index.mako')
 def index(request):
     user = None
+    content_on_main = None
+    _sum = None
+    val = None
+    _sold = None
+    _bonus = None
+    charity = None
     form = PaymentForm(request.POST)
-    _bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
+    _bundle = DBSession.query(Bundle).all()
+    if _bundle is not None:
+        # raise Exception
+        _bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
                                             Bundle.date_start<datetime.datetime.utcnow()).first()
-    if _bundle is None:
-        raise Exception
-    #     _bundle = DBSession.query(Bundle).filter(Bundle.date_start>datetime.datetime.utcnow()).first()
-    content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
-        order_by(Content.tier).limit(4).all()
-    _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
-    val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
-    _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
-    _sold = DBSession.query(func.count(Orders.id)).all()
-    charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
+            # filter(Bundle.date_start>datetime.datetime.utcnow()).first()
+        content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
+            order_by(Content.tier).limit(4).all()
+        _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
+        val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
+        _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
+        _sold = DBSession.query(func.count(Orders.id)).all()
+        charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
     if request.unauthenticated_userid is not None:
         user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
     response = {
