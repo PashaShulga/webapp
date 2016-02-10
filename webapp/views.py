@@ -118,6 +118,7 @@ def index(request):
             _bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
                                                      Bundle.date_start<=datetime.datetime.utcnow()).first()
             # filter(Bundle.date_start>datetime.datetime.utcnow()).first()
+            print(_bundle)
             content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
                 order_by(Content.tier).limit(4).all()
             _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
