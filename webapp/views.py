@@ -123,8 +123,8 @@ def index(request):
         _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
         _sold = DBSession.query(func.count(Orders.id)).all()
         charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
-    if request.unauthenticated_userid is not None:
-        user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
+        if request.unauthenticated_userid is not None:
+            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
 
     print({
          'items': content_on_main,
