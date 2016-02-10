@@ -104,7 +104,7 @@ def index(request):
     user = None
     content_on_main = None
     _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
-    val = None
+    val = [[]]
     _sold = None
     _bonus = None
     charity = None
