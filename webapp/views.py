@@ -17,15 +17,12 @@ from pyramid.security import (
     forget,
     )
 
-import logging
 import hashlib
 import time
 import datetime
 from itsdangerous import JSONWebSignatureSerializer
 from decimal import Decimal
 
-logging.basicConfig(format='%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s',
-                    level=logging.DEBUG, filename='log.log', filemode='a')
 
 itsden_signat = JSONWebSignatureSerializer('eyJhbGciOiJIUzUxMiJ9', algorithm_name='HS512')
 mailer = Mailer()
@@ -33,11 +30,9 @@ RECIPIENTS = 'pavloshulga.95@gmail.com'
 SUBJECT = 'Bundle'
 SENDER = 'localhost'
 
-logging.info('hello')
 
 @view_config(context=Exception)
 def failed_view(exc, request):
-    logging.error(exc.args)
     response = Response('Sorry, now not active bundle')
     response.status_int = 500
     return response
