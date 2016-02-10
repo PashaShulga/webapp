@@ -130,7 +130,7 @@ def index(request):
         print({
             'items': content_on_main,
             'form': form,
-            'total_raised': _sum(val[0][0]),
+            'total_raised': _sum((0 if val[0][0] is None else None)),
             'sold': _sold[0][0],
             'bundle': _bundle,
             'bonus': _bonus,
