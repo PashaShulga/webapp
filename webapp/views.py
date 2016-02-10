@@ -1,5 +1,4 @@
 from pyramid.response import Response
-from pyramid.renderers import render_to_response
 from pyramid.httpexceptions import HTTPFound
 from .form import RegistrationForm, LoginForm, PaymentForm
 from sqlalchemy.exc import DBAPIError
@@ -18,12 +17,14 @@ from pyramid.security import (
     forget,
     )
 
+import logging
 import hashlib
 import time
 import datetime
 from itsdangerous import JSONWebSignatureSerializer
 from decimal import Decimal
 
+log = logging.getLogger(__name__)
 itsden_signat = JSONWebSignatureSerializer('eyJhbGciOiJIUzUxMiJ9', algorithm_name='HS512')
 mailer = Mailer()
 RECIPIENTS = 'pavloshulga.95@gmail.com'
@@ -33,8 +34,8 @@ SENDER = 'localhost'
 
 @view_config(context=Exception)
 def failed_view(exc, request):
-    msg = exc.args
-    response = Response('Error %s' % msg)
+    log.error(exc.args)
+    response = Response('Sorry, now not active bundle')
     response.status_int = 500
     return response
 
@@ -61,15 +62,11 @@ def preview(request):
 
 @view_config(route_name='bundle_preview', renderer='webapp:templates/bundle_preview.mako')
 def bundle_preview(request):
-    try:
-        user = None
-        if request.unauthenticated_userid is not None:
-            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
-        bundles = DBSession.query(Bundle).all()
-        return {'items': bundles, 'user': user}
-    except Exception as e:
-        print(e)
-        return HTTPFound(location='/')
+    user = None
+    if request.unauthenticated_userid is not None:
+        user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
+    bundles = DBSession.query(Bundle).all()
+    return {'items': bundles, 'user': user}
 
 
 @view_config(route_name='content', renderer='webapp:templates/content.mako')
