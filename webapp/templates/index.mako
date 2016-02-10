@@ -4,7 +4,7 @@
         % if bundle != []:
             <h1 class="text-center">${bundle.title}</h1>
         %else:
-            <h1 class="text-center">This bundle not active</h1>
+            <h1 class="text-center">No active bundles</h1>
         % endif
         % if charity is not None:
             <div class="well" style="margin-left: auto; width: 30%">
