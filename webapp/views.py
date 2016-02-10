@@ -35,7 +35,6 @@ SENDER = 'localhost'
 def failed_view(exc, request):
     msg = exc.args
     response = Response('Error %s' % msg)
-    response.body_file('webapp:templates/500.mako')
     response.status_int = 500
     return response
 
