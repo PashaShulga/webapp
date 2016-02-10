@@ -103,7 +103,7 @@ def content(request):
 def index(request):
     user = None
     content_on_main = None
-    _sum = None
+    _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
     val = None
     _sold = None
     _bonus = None
@@ -122,7 +122,6 @@ def index(request):
                 order_by(Content.tier).limit(4).all()
             _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
             val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
-            _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
             _sold = DBSession.query(func.count(Orders.id)).all()
             charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
             if request.unauthenticated_userid is not None:
