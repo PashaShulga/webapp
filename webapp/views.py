@@ -64,6 +64,7 @@ def bundle_preview(request):
     if request.unauthenticated_userid is not None:
         user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
     bundles = DBSession.query(Bundle).all()
+    print(bundles)
     return {'items': bundles, 'user': user}
 
 
