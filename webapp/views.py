@@ -127,6 +127,7 @@ def index(request):
             if request.unauthenticated_userid is not None:
                 user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
 
+        print(val[0][0])
         print({
              'items': content_on_main,
              'form': form,
