@@ -31,6 +31,14 @@ SUBJECT = 'Bundle'
 SENDER = 'localhost'
 
 
+@view_config(context=Exception)
+def failed_view(exc, request):
+    msg = exc.args
+    response = Response('Error %s' % msg)
+    response.status_int = 500
+    return response
+
+
 @view_config(route_name='preview', renderer='webapp:templates/preview.mako')
 def preview(request):
     try:
