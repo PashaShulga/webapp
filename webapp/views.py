@@ -115,8 +115,7 @@ def index(request):
     try:
         if _bundle != []:
             # raise Exception
-            _bundle = DBSession.query(Bundle).filter(Bundle.date_end<datetime.datetime.utcnow(),
-                                                     Bundle.date_start>datetime.datetime.utcnow()).first()
+            _bundle = DBSession.query(Bundle).filter(Bundle.date_start>datetime.datetime.utcnow()).first()
             # filter(Bundle.date_start>datetime.datetime.utcnow()).first()
             print(_bundle)
             content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
