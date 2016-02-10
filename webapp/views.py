@@ -125,7 +125,18 @@ def index(request):
         charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
     if request.unauthenticated_userid is not None:
         user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
-    response = {
+
+    print({
+         'items': content_on_main,
+         'form': form,
+         'total_raised': _sum(val[0][0]),
+         'sold': _sold[0][0],
+         'bundle': _bundle,
+         'bonus': _bonus,
+         'charity': charity,
+         'user': user
+        })
+    return {
          'items': content_on_main,
          'form': form,
          'total_raised': _sum(val[0][0]),
@@ -135,7 +146,6 @@ def index(request):
          'charity': charity,
          'user': user
         }
-    return response
 
 
 @view_config(route_name='bundle', renderer='webapp:templates/bundle.mako')
