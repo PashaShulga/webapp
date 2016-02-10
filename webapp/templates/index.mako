@@ -60,6 +60,7 @@
             </div>
         </div>
         <br/>
+        % if bundle != []:
         <form action="/pay" method="post" class="form-group">
 
             <div class="">
@@ -119,7 +120,7 @@
                 </div>
             </div>
         </form>
-
+        % endif
     </div>
 
 </%block>
