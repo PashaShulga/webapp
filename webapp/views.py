@@ -104,7 +104,7 @@ def index(request):
     user = None
     content_on_main = None
     _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
-    val = [[]]
+    val = None
     _sold = None
     _bonus = None
     charity = None
@@ -116,38 +116,37 @@ def index(request):
         if _bundle != []:
             # raise Exception
             _bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
-                                                Bundle.date_start<datetime.datetime.utcnow()).first()
-                # filter(Bundle.date_start>datetime.datetime.utcnow()).first()
-            content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
+                                                     Bundle.date_start<datetime.datetime.utcnow()).first()
+            # filter(Bundle.date_start>datetime.datetime.utcnow()).first()
+            content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id). \
                 order_by(Content.tier).limit(4).all()
             _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
-            val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
-            _sold = DBSession.query(func.count(Orders.id)).all()
             charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
             if request.unauthenticated_userid is not None:
                 user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
-
+        val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
+        _sold = DBSession.query(func.count(Orders.id)).all()
         print(val[0][0])
         print({
-             'items': content_on_main,
-             'form': form,
-             'total_raised': _sum(val[0][0]),
-             'sold': _sold[0][0],
-             'bundle': _bundle,
-             'bonus': _bonus,
-             'charity': charity,
-             'user': user
-            })
+            'items': content_on_main,
+            'form': form,
+            'total_raised': _sum(val[0][0]),
+            'sold': _sold[0][0],
+            'bundle': _bundle,
+            'bonus': _bonus,
+            'charity': charity,
+            'user': user
+        })
         return {
-             'items': content_on_main,
-             'form': form,
-             'total_raised': _sum(val[0][0]),
-             'sold': _sold[0][0],
-             'bundle': _bundle,
-             'bonus': _bonus,
-             'charity': charity,
-             'user': user
-            }
+            'items': content_on_main,
+            'form': form,
+            'total_raised': _sum(val[0][0]),
+            'sold': _sold[0][0],
+            'bundle': _bundle,
+            'bonus': _bonus,
+            'charity': charity,
+            'user': user
+        }
     except:
         print(traceback.format_exc())
 
