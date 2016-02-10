@@ -122,11 +122,11 @@ def index(request):
                 order_by(Content.tier).limit(4).all()
             _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
             charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
-            if request.unauthenticated_userid is not None:
-                user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
-        val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
+            val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
+
+        if request.unauthenticated_userid is not None:
+            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
         _sold = DBSession.query(func.count(Orders.id)).all()
-        print(val[0][0])
         print({
             'items': content_on_main,
             'form': form,
