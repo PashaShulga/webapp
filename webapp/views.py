@@ -110,6 +110,7 @@ def index(request):
     charity = None
     form = PaymentForm(request.POST)
     _bundle = DBSession.query(Bundle).all()
+    print(_bundle)
     if _bundle is not None:
         # raise Exception
         _bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
