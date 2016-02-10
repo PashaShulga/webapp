@@ -33,6 +33,7 @@ RECIPIENTS = 'pavloshulga.95@gmail.com'
 SUBJECT = 'Bundle'
 SENDER = 'localhost'
 
+logging.info('hello')
 
 @view_config(context=Exception)
 def failed_view(exc, request):
