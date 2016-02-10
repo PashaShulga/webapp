@@ -24,7 +24,9 @@ import datetime
 from itsdangerous import JSONWebSignatureSerializer
 from decimal import Decimal
 
-log = logging.getLogger(__name__)
+logging.basicConfig(format='%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s',
+                    level=logging.DEBUG, filename='log.log', filemode='a')
+
 itsden_signat = JSONWebSignatureSerializer('eyJhbGciOiJIUzUxMiJ9', algorithm_name='HS512')
 mailer = Mailer()
 RECIPIENTS = 'pavloshulga.95@gmail.com'
@@ -34,7 +36,7 @@ SENDER = 'localhost'
 
 @view_config(context=Exception)
 def failed_view(exc, request):
-    log.error(exc.args)
+    logging.error(exc.args)
     response = Response('Sorry, now not active bundle')
     response.status_int = 500
     return response
