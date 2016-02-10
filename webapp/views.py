@@ -31,11 +31,11 @@ SUBJECT = 'Bundle'
 SENDER = 'localhost'
 
 
-@view_config(context=Exception)
-def failed_view(exc, request):
-    response = Response('Sorry, now not active bundle %s' % exc)
-    response.status_int = 500
-    return response
+# @view_config(context=Exception)
+# def failed_view(exc, request):
+#     response = Response('Sorry, now not active bundle %s' % exc)
+#     response.status_int = 500
+#     return response
 
 
 @view_config(route_name='preview', renderer='webapp:templates/preview.mako')
@@ -110,42 +110,46 @@ def index(request):
     charity = None
     form = PaymentForm(request.POST)
     _bundle = DBSession.query(Bundle).all()
+    import traceback
     print("BUNDLE: ", _bundle)
-    if _bundle != []:
-        # raise Exception
-        _bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
-                                            Bundle.date_start<datetime.datetime.utcnow()).first()
-            # filter(Bundle.date_start>datetime.datetime.utcnow()).first()
-        content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
-            order_by(Content.tier).limit(4).all()
-        _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
-        val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
-        _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
-        _sold = DBSession.query(func.count(Orders.id)).all()
-        charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
-        if request.unauthenticated_userid is not None:
-            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
+    try:
+        if _bundle != []:
+            # raise Exception
+            _bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
+                                                Bundle.date_start<datetime.datetime.utcnow()).first()
+                # filter(Bundle.date_start>datetime.datetime.utcnow()).first()
+            content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
+                order_by(Content.tier).limit(4).all()
+            _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
+            val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
+            _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
+            _sold = DBSession.query(func.count(Orders.id)).all()
+            charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
+            if request.unauthenticated_userid is not None:
+                user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
 
-    print({
-         'items': content_on_main,
-         'form': form,
-         'total_raised': _sum(val[0][0]),
-         'sold': _sold[0][0],
-         'bundle': _bundle,
-         'bonus': _bonus,
-         'charity': charity,
-         'user': user
-        })
-    return {
-         'items': content_on_main,
-         'form': form,
-         'total_raised': _sum(val[0][0]),
-         'sold': _sold[0][0],
-         'bundle': _bundle,
-         'bonus': _bonus,
-         'charity': charity,
-         'user': user
-        }
+        print({
+             'items': content_on_main,
+             'form': form,
+             'total_raised': _sum(val[0][0]),
+             'sold': _sold[0][0],
+             'bundle': _bundle,
+             'bonus': _bonus,
+             'charity': charity,
+             'user': user
+            })
+        return {
+             'items': content_on_main,
+             'form': form,
+             'total_raised': _sum(val[0][0]),
+             'sold': _sold[0][0],
+             'bundle': _bundle,
+             'bonus': _bonus,
+             'charity': charity,
+             'user': user
+            }
+    except:
+        print(traceback.format_exc())
 
 
 @view_config(route_name='bundle', renderer='webapp:templates/bundle.mako')
