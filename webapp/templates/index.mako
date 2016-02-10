@@ -1,7 +1,7 @@
 <%inherit file="base.html"/>
 <%block name="main">
     <div class="main-setting">
-        % if bundle is not None:
+        % if bundle != []:
             <h1 class="text-center">${bundle.title}</h1>
         %else:
             <h1 class="text-center">This bundle not active</h1>
