@@ -106,7 +106,7 @@ def index(request):
     _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
     val = None
     _sold = None
-    _bonus = None
+    _bonus = []
     charity = None
     form = PaymentForm(request.POST)
     _bundle = DBSession.query(Bundle).all()
