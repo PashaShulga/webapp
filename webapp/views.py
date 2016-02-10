@@ -31,31 +31,28 @@ SUBJECT = 'Bundle'
 SENDER = 'localhost'
 
 
-# @view_config(context=Exception)
-# def failed_view(exc, request):
-#     response = Response('Sorry, now not active bundle %s' % exc)
-#     response.status_int = 500
-#     return response
+@view_config(context=Exception)
+def failed_view(exc, request):
+    response = Response('Sorry, now not active bundle')
+    response.status_int = 500
+    return response
 
 
 @view_config(route_name='preview', renderer='webapp:templates/preview.mako')
 def preview(request):
-    try:
-        # user = DBSession.query(Users).filter_by(name=request.unauthenticated_userid).first()
-        # order = DBSession.query(Orders).filter_by(mail=user.mail).first()
-        # if order.id is not None:
-        user = None
-        if request.unauthenticated_userid is not None:
-            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
-        data = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
-        return {'image': data.image,
-                'title': data.title,
-                'description': data.description,
-                'link': None,
-                'manufacture': data.manufacture,
-                'user': user}
-    except DBAPIError:
-        return HTTPFound(location='/')
+    # user = DBSession.query(Users).filter_by(name=request.unauthenticated_userid).first()
+    # order = DBSession.query(Orders).filter_by(mail=user.mail).first()
+    # if order.id is not None:
+    user = None
+    if request.unauthenticated_userid is not None:
+        user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
+    data = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
+    return {'image': data.image,
+            'title': data.title,
+            'description': data.description,
+            'link': None,
+            'manufacture': data.manufacture,
+            'user': user}
 
 
 @view_config(route_name='bundle_preview', renderer='webapp:templates/bundle_preview.mako')
@@ -110,43 +107,28 @@ def index(request):
     charity = None
     form = PaymentForm(request.POST)
     _bundle = DBSession.query(Bundle).all()
-    import traceback
-    print("BUNDLE: ", _bundle)
-    try:
-        if _bundle != []:
-            _bundle = DBSession.query(Bundle).filter(Bundle.date_start<datetime.datetime.utcnow(),
-                                                     Bundle.date_end>datetime.datetime.utcnow()).first()
-            content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
-                order_by(Content.tier).limit(4).all()
-            _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
-            charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
-            val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
+    if _bundle != []:
+        _bundle = DBSession.query(Bundle).filter(Bundle.date_start<datetime.datetime.utcnow(),
+                                                 Bundle.date_end>datetime.datetime.utcnow()).first()
+        content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
+            order_by(Content.tier).limit(4).all()
+        _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
+        charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
+        val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
 
-        if request.unauthenticated_userid is not None:
-            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
-        _sold = DBSession.query(func.count(Orders.id)).all()
-        print({
-            'items': content_on_main,
-            'form': form,
-            'total_raised': _sum((0 if val is None else val[0][0])),
-            'sold': _sold[0][0],
-            'bundle': _bundle,
-            'bonus': _bonus,
-            'charity': charity,
-            'user': user
-        })
-        return {
-            'items': content_on_main,
-            'form': form,
-            'total_raised': _sum((0 if val is None else val[0][0])),
-            'sold': _sold[0][0],
-            'bundle': _bundle,
-            'bonus': _bonus,
-            'charity': charity,
-            'user': user
-        }
-    except:
-        print(traceback.format_exc())
+    if request.unauthenticated_userid is not None:
+        user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
+    _sold = DBSession.query(func.count(Orders.id)).all()
+    return {
+        'items': content_on_main,
+        'form': form,
+        'total_raised': _sum((0 if val is None else val[0][0])),
+        'sold': _sold[0][0],
+        'bundle': _bundle,
+        'bonus': _bonus,
+        'charity': charity,
+        'user': user
+    }
 
 
 @view_config(route_name='bundle', renderer='webapp:templates/bundle.mako')
@@ -179,16 +161,13 @@ def bundle(request):
 
 @view_config(route_name='verify', renderer='webapp:templates/verify.mako')
 def verify(request):
-    try:
-        code = request.matchdict['code']
-        data = itsden_signat.loads(code)
-        _bundle = DBSession.query(Bundle).filter_by(id=data['bundle_id']).first()
-        response = Response()
-        response.set_cookie(u'{}'.format(data['bundle_id']),
-                            value=code, max_age=u'{}'.format(int(time.time()-_bundle.date_end.timestamp()) * -1 ))
-        return HTTPFound(location=request.route_url('index'), headers=response.headers)
-    except DBAPIError:
-        return HTTPFound(location=request.route_url('index'))
+    code = request.matchdict['code']
+    data = itsden_signat.loads(code)
+    _bundle = DBSession.query(Bundle).filter_by(id=data['bundle_id']).first()
+    response = Response()
+    response.set_cookie(u'{}'.format(data['bundle_id']),
+                        value=code, max_age=u'{}'.format(int(time.time()-_bundle.date_end.timestamp()) * -1 ))
+    return HTTPFound(location=request.route_url('index'), headers=response.headers)
 
 
 @view_config(route_name='login', renderer='webapp:templates/login.mako')
@@ -258,13 +237,10 @@ def register(request):
 def user(request):
     if request.unauthenticated_userid is not None:
         user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first()
-        try:
-            user_order_history = DBSession.query(Orders, Bundle)
-            records = user_order_history.join(Bundle, Bundle.id == Orders.bundle_id).filter(
-                    Orders.mail==request.unauthenticated_userid).order_by(Orders.timestamp).all()
-            return {'user': user, 'query': records}
-        except DBAPIError:
-            return HTTPFound(location='/')
+        user_order_history = DBSession.query(Orders, Bundle)
+        records = user_order_history.join(Bundle, Bundle.id == Orders.bundle_id).filter(
+                Orders.mail==request.unauthenticated_userid).order_by(Orders.timestamp).all()
+        return {'user': user, 'query': records}
 
 # @view_config(route_name='end_reg', renderer='webapp:templates/confirm.mako')
 # def end_reg(request):
@@ -290,54 +266,51 @@ def about(request):
 
 @view_config(route_name='pay', renderer='webapp:templates/pay.mako')
 def pay_methods(request):
-    try:
-        form = PaymentForm(request.POST)
-        if request.method == 'POST':
-            amount = request.POST['amount']
-            content = request.POST['content']
-            charity = request.POST['charity']
-            email = request.POST['email']
-            credit_card = form.card.data
-            sum_content = float(amount) * float(content) / 100
-            sum_charity = float(amount) * float(charity) / 100
-            _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
-                                                     Bundle.date_end>=datetime.datetime.utcnow()).first()
-            codec = {
-                'email': email,
-                'card': credit_card,
-                'charity': float(sum_charity),
-                'content': float(sum_content),
-                'amount': float(amount),
-                'bundle_id': _bundle.id
-            }
-            res = itsden_signat.dumps(codec)
-            if float(form.amount.data) >= 2.0:
-                if (sum_charity+sum_content==float(amount)):
-                    try:
-                        code = request.application_url+'/verify/{}'.format(res.decode())
-                        # send_mail(email, 'You code', code)
-                        message = Message(subject=SUBJECT,
-                                          sender=SENDER,
-                                          recipients=[RECIPIENTS],
-                                          body='Your link {}'.format(code))
-                        mailer.send(message)
-                        new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email,
-                                           bundle_id=codec['bundle_id'])
-                        DBSession.add(new_order)
-                        print(code)
-                        if DBSession.query(Users).filter_by(mail=email).first() is None:
-                            new_user = Users()
-                            new_user.mail = email
-                            DBSession.add(new_user)
-                        return HTTPFound(location="/")
-                    except:
-                        return {'message': 'check you email sender addres'}
-                else:
-                    return {'message': 'Bundle is not exist or sum content + sum charity != amount'}
+    form = PaymentForm(request.POST)
+    if request.method == 'POST':
+        amount = request.POST['amount']
+        content = request.POST['content']
+        charity = request.POST['charity']
+        email = request.POST['email']
+        credit_card = form.card.data
+        sum_content = float(amount) * float(content) / 100
+        sum_charity = float(amount) * float(charity) / 100
+        _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
+                                                 Bundle.date_end>=datetime.datetime.utcnow()).first()
+        codec = {
+            'email': email,
+            'card': credit_card,
+            'charity': float(sum_charity),
+            'content': float(sum_content),
+            'amount': float(amount),
+            'bundle_id': _bundle.id
+        }
+        res = itsden_signat.dumps(codec)
+        if float(form.amount.data) >= 2.0:
+            if (sum_charity+sum_content==float(amount)):
+                try:
+                    code = request.application_url+'/verify/{}'.format(res.decode())
+                    # send_mail(email, 'You code', code)
+                    message = Message(subject=SUBJECT,
+                                      sender=SENDER,
+                                      recipients=[RECIPIENTS],
+                                      body='Your link {}'.format(code))
+                    mailer.send(message)
+                    new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email,
+                                       bundle_id=codec['bundle_id'])
+                    DBSession.add(new_order)
+                    print(code)
+                    if DBSession.query(Users).filter_by(mail=email).first() is None:
+                        new_user = Users()
+                        new_user.mail = email
+                        DBSession.add(new_user)
+                    return HTTPFound(location="/")
+                except:
+                    return {'message': 'check you email sender addres'}
             else:
-                return {'message': 'Enter sum >= 2'}
-    except DBAPIError:
-        return HTTPFound(location="/")
+                return {'message': 'Bundle is not exist or sum content + sum charity != amount'}
+        else:
+            return {'message': 'Enter sum >= 2'}
 
 
 @view_config(route_name='b_content', renderer='webapp:templates/bonus.mako')
