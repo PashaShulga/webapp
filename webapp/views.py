@@ -33,7 +33,7 @@ SENDER = 'localhost'
 
 @view_config(context=Exception)
 def failed_view(exc, request):
-    response = Response('Sorry, now not active bundle %s' % exc.args)
+    response = Response('Sorry, now not active bundle %s' % exc)
     response.status_int = 500
     return response
 
@@ -110,8 +110,8 @@ def index(request):
     charity = None
     form = PaymentForm(request.POST)
     _bundle = DBSession.query(Bundle).all()
-    print(_bundle)
-    if _bundle is not []:
+    print("BUNDLE: ", _bundle)
+    if _bundle != []:
         # raise Exception
         _bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
                                             Bundle.date_start<datetime.datetime.utcnow()).first()
