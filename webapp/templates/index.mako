@@ -6,11 +6,13 @@
         %else:
             <h1 class="text-center">This bundle not active</h1>
         % endif
-        <div class="well" style="margin-left: auto; width: 30%">
-            <img src="${charity.logo}">
-            <h3>${charity.name}</h3>
-            <p>${charity.description}</p>
-        </div>
+        % if charity is not None:
+            <div class="well" style="margin-left: auto; width: 30%">
+                <img src="${charity.logo}">
+                <h3>${charity.name}</h3>
+                <p>${charity.description}</p>
+            </div>
+        % endif
 
         <div class="row">
             % for item in items:
