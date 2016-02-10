@@ -106,68 +106,60 @@ def content(request):
 
 @view_config(route_name='index', renderer='webapp:templates/index.mako')
 def index(request):
-    try:
-        user = None
-        form = PaymentForm(request.POST)
-        _bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
-                                                Bundle.date_start<datetime.datetime.utcnow()).first()
-        if _bundle is None:
-            _bundle = DBSession.query(Bundle).filter(Bundle.date_start>datetime.datetime.utcnow()).first()
-
-        content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
-            order_by(Content.tier).limit(4).all()
-        _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
-        val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
-        _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
-        _sold = DBSession.query(func.count(Orders.id)).all()
-        charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
-        if request.unauthenticated_userid is not None:
-            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
-        response = {
-             'items': content_on_main,
-             'form': form,
-             'total_raised': _sum(val[0][0]),
-             'sold': _sold[0][0],
-             'bundle': _bundle,
-             'bonus': _bonus,
-             'charity': charity,
-             'user': user
-            }
-        return response
-    except:
-        return HTTPFound(location='/')
+    user = None
+    form = PaymentForm(request.POST)
+    _bundle = DBSession.query(Bundle).filter(Bundle.date_end>datetime.datetime.utcnow(),
+                                            Bundle.date_start<datetime.datetime.utcnow()).first()
+    if _bundle is None:
+        _bundle = DBSession.query(Bundle).filter(Bundle.date_start>datetime.datetime.utcnow()).first()
+    content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
+        order_by(Content.tier).limit(4).all()
+    _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00)).limit(2).all()
+    val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
+    _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
+    _sold = DBSession.query(func.count(Orders.id)).all()
+    charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
+    if request.unauthenticated_userid is not None:
+        user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
+    response = {
+         'items': content_on_main,
+         'form': form,
+         'total_raised': _sum(val[0][0]),
+         'sold': _sold[0][0],
+         'bundle': _bundle,
+         'bonus': _bonus,
+         'charity': charity,
+         'user': user
+        }
+    return response
 
 
 @view_config(route_name='bundle', renderer='webapp:templates/bundle.mako')
 def bundle(request):
-    try:
-        user = None
-        if request.unauthenticated_userid is not None:
-            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
-        form = PaymentForm(request.POST)
-        _bundle = DBSession.query(Bundle).filter_by(id=request.matchdict['id']).first()
-        content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
-            order_by(Content.tier).limit(4).all()
-        _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00),
-                                                 Content.bundle_id==_bundle.id).limit(2).all()
-        val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
-        _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
-        _sold = DBSession.query(func.count(Orders.id)).filter(Orders.bundle_id==_bundle.id).all()
-        charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
-        response = {
-                'items': content_on_main,
-                'form': form,
-                'total_raised': _sum(val[0][0]),
-                'sold': _sold[0][0],
-                '_bundle': _bundle,
-                'bonus': _bonus,
-                'charity': charity,
-                'user': user
-            }
-        return response
-    except Exception:
-        # return {'message': 'No active bundles'}
-        return HTTPFound(location='/')
+    user = None
+    if request.unauthenticated_userid is not None:
+        user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
+    form = PaymentForm(request.POST)
+    _bundle = DBSession.query(Bundle).filter_by(id=request.matchdict['id']).first()
+    content_on_main = DBSession.query(Content).filter(Content.bundle_id==_bundle.id).\
+        order_by(Content.tier).limit(4).all()
+    _bonus = DBSession.query(Content).filter(Content.tier>=Decimal(25.00),
+                                             Content.bundle_id==_bundle.id).limit(2).all()
+    val = DBSession.query(func.sum(Orders.sum_charity)).filter(Orders.bundle_id==_bundle.id).all()
+    _sum = lambda x: Decimal(x) if x is not None else Decimal(0)
+    _sold = DBSession.query(func.count(Orders.id)).filter(Orders.bundle_id==_bundle.id).all()
+    charity = DBSession.query(Charity).filter_by(id=_bundle.charity_id).first()
+    response = {
+            'items': content_on_main,
+            'form': form,
+            'total_raised': _sum(val[0][0]),
+            'sold': _sold[0][0],
+            '_bundle': _bundle,
+            'bonus': _bonus,
+            'charity': charity,
+            'user': user
+        }
+    return response
 
 
 @view_config(route_name='verify', renderer='webapp:templates/verify.mako')
