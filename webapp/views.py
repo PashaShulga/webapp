@@ -300,10 +300,10 @@ def pay_methods(request):
                                        bundle_id=codec['bundle_id'])
                     DBSession.add(new_order)
                     print(code)
-                    if DBSession.query(Users).filter_by(mail=email).first() is None:
-                        new_user = Users()
-                        new_user.mail = email
-                        DBSession.add(new_user)
+                    # if DBSession.query(Users).filter_by(mail=email).first() is None:
+                        # new_user = Users()
+                        # new_user.mail = email
+                        # DBSession.add(new_user)
                     return HTTPFound(location="/")
                 except:
                     return {'message': 'check you email sender addres'}
