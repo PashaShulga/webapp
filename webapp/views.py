@@ -291,15 +291,14 @@ def pay_methods(request):
         if float(form.amount.data) >= 2.0:
             if (sum_charity+sum_content==float(amount)):
                 code = request.application_url+'/verify/{}'.format(res.decode())
-                # send_mail(email, 'You code', code)
-                try:
-                    message = Message(subject=SUBJECT,
-                                  sender=SENDER,
-                                  recipients=[RECIPIENTS],
-                                  body='Your link {}'.format(code))
-                    mailer.send(message)
-                except Exception as e:
-                    print(e)
+                #TODO: uncomment this lines for use pyramid_mailer
+
+                # message = Message(subject=SUBJECT,
+                #               sender=SENDER,
+                #               recipients=[RECIPIENTS],
+                #               body='Your link {}'.format(code))
+                # mailer.send(message)
+
                 new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email,
                                    bundle_id=codec['bundle_id'])
                 DBSession.add(new_order)
