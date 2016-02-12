@@ -288,25 +288,25 @@ def pay_methods(request):
         res = itsden_signat.dumps(codec)
         if float(form.amount.data) >= 2.0:
             if (sum_charity+sum_content==float(amount)):
-                try:
-                    code = request.application_url+'/verify/{}'.format(res.decode())
-                    # send_mail(email, 'You code', code)
-                    message = Message(subject=SUBJECT,
-                                      sender=SENDER,
-                                      recipients=[RECIPIENTS],
-                                      body='Your link {}'.format(code))
-                    mailer.send(message)
-                    new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email,
-                                       bundle_id=codec['bundle_id'])
-                    DBSession.add(new_order)
-                    print(code)
-                    # if DBSession.query(Users).filter_by(mail=email).first() is None:
-                        # new_user = Users()
-                        # new_user.mail = email
-                        # DBSession.add(new_user)
-                    return HTTPFound(location="/")
-                except:
-                    return {'message': 'check you email sender addres'}
+                # try:
+                code = request.application_url+'/verify/{}'.format(res.decode())
+                # send_mail(email, 'You code', code)
+                # message = Message(subject=SUBJECT,
+                #                   sender=SENDER,
+                #                   recipients=[RECIPIENTS],
+                #                   body='Your link {}'.format(code))
+                # mailer.send(message)
+                new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email,
+                                   bundle_id=codec['bundle_id'])
+                DBSession.add(new_order)
+                print(code)
+                # if DBSession.query(Users).filter_by(mail=email).first() is None:
+                    # new_user = Users()
+                    # new_user.mail = email
+                    # DBSession.add(new_user)
+                return HTTPFound(location="/")
+                # except:
+                #     return {'message': 'check you email sender addres'}
             else:
                 return {'message': 'Bundle is not exist or sum content + sum charity != amount'}
         else:
