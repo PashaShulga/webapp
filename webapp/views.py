@@ -273,40 +273,40 @@ def pay_methods(request):
         charity = request.POST['charity']
         email = request.POST['email']
         credit_card = form.card.data
-        sum_content = float(amount) * float(content) / 100
-        sum_charity = float(amount) * float(charity) / 100
+        sum_content = Decimal(amount) * Decimal(content) / 100
+        sum_charity = Decimal(amount) * Decimal(charity) / 100
         _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
                                                  Bundle.date_end>=datetime.datetime.utcnow()).first()
         codec = {
             'email': email,
             'card': credit_card,
-            'charity': float(sum_charity),
-            'content': float(sum_content),
-            'amount': float(amount),
+            'charity': Decimal(sum_charity),
+            'content': Decimal(sum_content),
+            'amount': Decimal(amount),
             'bundle_id': _bundle.id
         }
         res = itsden_signat.dumps(codec)
-        if float(form.amount.data) >= 2.0:
-            if (sum_charity+sum_content==float(amount)):
-                # try:
+        if Decimal(form.amount.data) >= 2.0:
+            if (sum_charity+sum_content==Decimal(amount)):
                 code = request.application_url+'/verify/{}'.format(res.decode())
                 # send_mail(email, 'You code', code)
-                # message = Message(subject=SUBJECT,
-                #                   sender=SENDER,
-                #                   recipients=[RECIPIENTS],
-                #                   body='Your link {}'.format(code))
-                # mailer.send(message)
+                try:
+                    message = Message(subject=SUBJECT,
+                                  sender=SENDER,
+                                  recipients=[RECIPIENTS],
+                                  body='Your link {}'.format(code))
+                    mailer.send(message)
+                except Exception as e:
+                    print(e)
                 new_order = Orders(sum_charity=sum_charity, sum_content=sum_content, mail=email,
                                    bundle_id=codec['bundle_id'])
                 DBSession.add(new_order)
                 print(code)
                 # if DBSession.query(Users).filter_by(mail=email).first() is None:
-                    # new_user = Users()
-                    # new_user.mail = email
-                    # DBSession.add(new_user)
+                #     new_user = Users()
+                #     new_user.mail = email
+                #     DBSession.add(new_user)
                 return HTTPFound(location="/")
-                # except:
-                #     return {'message': 'check you email sender addres'}
             else:
                 return {'message': 'Bundle is not exist or sum content + sum charity != amount'}
         else:
