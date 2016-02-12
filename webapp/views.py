@@ -275,7 +275,9 @@ def pay_methods(request):
         charity = request.POST['charity']
         email = request.POST['email']
         credit_card = form.card.data
-        sum_content = json.dumps(Decimal(amount), use_decimal=True) * json.dumps(Decimal(content), use_decimal=True)/100
+        import pprint
+        pprint.pprint(amount)
+        sum_content = Decimal(amount) * Decimal(content)/100
         sum_charity = Decimal(amount) * Decimal(charity) / 100
         _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
                                                  Bundle.date_end>=datetime.datetime.utcnow()).first()
