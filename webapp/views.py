@@ -282,9 +282,9 @@ def pay_methods(request):
         codec = {
             'email': email,
             'card': credit_card,
-            'charity': Decimal(sum_charity),
-            'content': Decimal(sum_content),
-            'amount': Decimal(amount),
+            'charity': float(sum_charity),
+            'content': float(sum_content),
+            'amount': float(amount),
             'bundle_id': _bundle.id
         }
         res = itsden_signat.dumps(codec)
