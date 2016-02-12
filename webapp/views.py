@@ -33,7 +33,7 @@ SENDER = 'localhost'
 
 @view_config(context=Exception)
 def failed_view(exc, request):
-    response = Response('Sorry, now not active bundle')
+    response = Response('Error, %s' % exc)
     response.status_int = 500
     return response
 
