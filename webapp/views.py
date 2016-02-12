@@ -275,10 +275,8 @@ def pay_methods(request):
         charity = request.POST['charity']
         email = request.POST['email']
         credit_card = form.card.data
-        import pprint
-        pprint.pprint(amount)
-        sum_content = Decimal(amount) * Decimal(content)/100
-        sum_charity = Decimal(amount) * Decimal(charity) / 100
+        sum_content = float(amount) * float(content) / 100
+        sum_charity = float(amount) * float(charity) / 100
         _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
                                                  Bundle.date_end>=datetime.datetime.utcnow()).first()
         codec = {
@@ -290,8 +288,8 @@ def pay_methods(request):
             'bundle_id': _bundle.id
         }
         res = itsden_signat.dumps(codec)
-        if Decimal(form.amount.data) >= Decimal(2.0):
-            if (sum_charity+sum_content==Decimal(amount)):
+        if float(form.amount.data) >= 2.0:
+            if (sum_charity+sum_content==float(amount)):
                 code = request.application_url+'/verify/{}'.format(res.decode())
                 # send_mail(email, 'You code', code)
                 try:
