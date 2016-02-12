@@ -33,7 +33,8 @@ SENDER = 'localhost'
 
 @view_config(context=Exception)
 def failed_view(exc, request):
-    response = Response('Error, %s' % exc)
+    import traceback
+    response = Response('Error, %s' % traceback.format_exc())
     response.status_int = 500
     return response
 
@@ -286,7 +287,7 @@ def pay_methods(request):
             'bundle_id': _bundle.id
         }
         res = itsden_signat.dumps(codec)
-        if Decimal(form.amount.data) >= 2.0:
+        if Decimal(form.amount.data) >= Decimal(2.0):
             if (sum_charity+sum_content==Decimal(amount)):
                 code = request.application_url+'/verify/{}'.format(res.decode())
                 # send_mail(email, 'You code', code)
