@@ -279,7 +279,7 @@ def pay_methods(request):
         credit_card = form.card.data
         sum_content = float(amount) * float(content) / 100
         sum_charity = float(amount) * float(charity) / 100
-        print(request['HTTP_REFERER'])
+        print(request.__dict__['HTTP_REFERER'])
         _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
                                                  Bundle.date_end>=datetime.datetime.utcnow()).first()
         codec = {
