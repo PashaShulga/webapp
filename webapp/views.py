@@ -292,6 +292,7 @@ def pay_methods(request):
             'amount': float(amount),
             'bundle_id': _bundle
         }
+        print(codec)
         res = itsden_signat.dumps(codec)
         if float(form.amount.data) >= 2.0:
             if (sum_charity+sum_content==float(amount)):
