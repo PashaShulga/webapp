@@ -279,15 +279,17 @@ def pay_methods(request):
         credit_card = form.card.data
         sum_content = float(amount) * float(content) / 100
         sum_charity = float(amount) * float(charity) / 100
-        # _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
-        #                                          Bundle.date_end>=datetime.datetime.utcnow()).first()
+        _bundle = str(request.referer).split('/')[-1]
+        if _bundle is KeyError:
+            _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
+                                                 Bundle.date_end>=datetime.datetime.utcnow()).first()
         codec = {
             'email': email,
             'card': credit_card,
             'charity': float(sum_charity),
             'content': float(sum_content),
             'amount': float(amount),
-            'bundle_id': str(request.referer).split('/')[-1]
+            'bundle_id': _bundle
         }
         res = itsden_signat.dumps(codec)
         if float(form.amount.data) >= 2.0:
