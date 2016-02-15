@@ -164,7 +164,9 @@ def bundle(request):
 @view_config(route_name='verify', renderer='webapp:templates/verify.mako')
 def verify(request):
     code = request.matchdict['code']
+    print(code)
     data = itsden_signat.loads(code)
+    print(data)
     _bundle = DBSession.query(Bundle).filter_by(id=data['bundle_id']).first()
     response = Response()
     response.set_cookie(u'{}'.format(data['bundle_id']),
