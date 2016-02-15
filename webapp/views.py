@@ -279,10 +279,9 @@ def pay_methods(request):
         credit_card = form.card.data
         sum_content = float(amount) * float(content) / 100
         sum_charity = float(amount) * float(charity) / 100
-        try:
-            _bundle = str(request.referer).split('/')[-1]
-        except KeyError:
-            print('error')
+
+        _bundle = str(request.referer).split('/')[-1]
+        if _bundle is None:
             _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
                                                  Bundle.date_end>=datetime.datetime.utcnow()).first().id
         codec = {
