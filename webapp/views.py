@@ -32,12 +32,12 @@ SUBJECT = 'Bundle'
 SENDER = 'localhost'
 
 
-# @view_config(context=Exception)
-# def failed_view(exc, request):
-#     # import traceback
-#     response = Response('Error, %s' % exc)
-#     response.status_int = 500
-#     return response
+@view_config(context=Exception)
+def failed_view(exc, request):
+    # import traceback
+    response = Response('Error, %s' % exc)
+    response.status_int = 500
+    return response
 
 
 @view_config(route_name='preview', renderer='webapp:templates/preview.mako')
