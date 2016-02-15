@@ -344,5 +344,8 @@ def bonus_content(request):
             return preview(request)
         # else:
         #     return preview(request)
+
     except KeyError:
-        return HTTPFound(location='/')
+        import traceback
+        print(traceback.format_exc())
+        # return HTTPFound(location='/')
