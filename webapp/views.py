@@ -34,8 +34,8 @@ SENDER = 'localhost'
 
 @view_config(context=Exception)
 def failed_view(exc, request):
-    import traceback
-    response = Response('Error, %s' % traceback.format_exc())
+    # import traceback
+    response = Response('Error, %s' % exc)
     response.status_int = 500
     return response
 
