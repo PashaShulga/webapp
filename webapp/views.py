@@ -281,7 +281,7 @@ def pay_methods(request):
         sum_charity = float(amount) * float(charity) / 100
 
         _bundle = str(request.referer).split('/')[-1]
-        if _bundle is None:
+        if _bundle == '':
             _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
                                                  Bundle.date_end>=datetime.datetime.utcnow()).first().id
         codec = {
