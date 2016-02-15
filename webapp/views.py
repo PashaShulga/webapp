@@ -282,8 +282,9 @@ def pay_methods(request):
         try:
             _bundle = str(request.referer).split('/')[-1]
         except KeyError:
+            print('error')
             _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
-                                                 Bundle.date_end>=datetime.datetime.utcnow()).first()
+                                                 Bundle.date_end>=datetime.datetime.utcnow()).first().id
         codec = {
             'email': email,
             'card': credit_card,
