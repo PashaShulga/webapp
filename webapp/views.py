@@ -279,12 +279,9 @@ def pay_methods(request):
         credit_card = form.card.data
         sum_content = float(amount) * float(content) / 100
         sum_charity = float(amount) * float(charity) / 100
-        # _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
-        #                                          Bundle.date_end>=datetime.datetime.utcnow()).first()
-        # _bundle = DBSession.query(Bundle).
         print(request.__dict__)
-
-        print(request.matchdict)
+        _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
+                                                 Bundle.date_end>=datetime.datetime.utcnow()).first()
         codec = {
             'email': email,
             'card': credit_card,
