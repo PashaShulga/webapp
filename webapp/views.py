@@ -325,6 +325,7 @@ def bonus_content(request):
         data = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
         if data is not None:
             dict_itsden = itsden_signat.loads(request.cookies[str(data.bundle_id)])
+        print(dict_itsden)
         order = DBSession.query(Orders).filter_by(mail=dict_itsden['email']).first()
         _sum = DBSession.query(func.sum(Orders.sum_charity+Orders.sum_content)).filter(Orders.mail==dict_itsden['email'])
         if order is not None:
