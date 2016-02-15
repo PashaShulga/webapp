@@ -282,7 +282,7 @@ def pay_methods(request):
         # _bundle = DBSession.query(Bundle).filter(Bundle.date_start<=datetime.datetime.utcnow(),
         #                                          Bundle.date_end>=datetime.datetime.utcnow()).first()
         # _bundle = DBSession.query(Bundle).
-        print(request)
+        print(request.__dict__)
         codec = {
             'email': email,
             'card': credit_card,
