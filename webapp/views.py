@@ -292,7 +292,6 @@ def pay_methods(request):
             'amount': float(amount),
             'bundle_id': _bundle
         }
-        print(codec)
         res = itsden_signat.dumps(codec)
         if float(form.amount.data) >= 2.0:
             if (sum_charity+sum_content==float(amount)):
@@ -322,36 +321,29 @@ def pay_methods(request):
 
 @view_config(route_name='b_content', renderer='webapp:templates/bonus.mako')
 def bonus_content(request):
-    try:
-        # if request.unauthenticated_userid is not None:
-        user = None
-        dict_itsden = None
-        if request.unauthenticated_userid is not None:
-            user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
-        data = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
-        if data is not None:
-            dict_itsden = itsden_signat.loads(request.cookies[str(data.bundle_id)])
-        print(dict_itsden)
-        order = DBSession.query(Orders).filter_by(mail=dict_itsden['email']).first()
-        _sum = DBSession.query(func.sum(Orders.sum_charity+Orders.sum_content)).filter(Orders.mail==dict_itsden['email'])
-        if order is not None:
-            get_content_by_id = DBSession.query(Content).filter(Content.id==request.matchdict['id'],
-                                                                Content.tier<=_sum[0][0]).first()
-            if get_content_by_id is not None:
-                return {'image': '../'+get_content_by_id.image,
-                        'title': get_content_by_id.title,
-                        'description': get_content_by_id.description,
-                        'link': get_content_by_id.link,
-                        'manufacture': get_content_by_id.manufacture,
-                        'user': user}
-            else:
-                return preview(request)
+    # if request.unauthenticated_userid is not None:
+    user = None
+    dict_itsden = None
+    if request.unauthenticated_userid is not None:
+        user = DBSession.query(Users).filter_by(mail=request.unauthenticated_userid).first().id
+    data = DBSession.query(Content).filter_by(id=request.matchdict['id']).first()
+    if data is not None:
+        dict_itsden = itsden_signat.loads(request.cookies[str(data.bundle_id)])
+    order = DBSession.query(Orders).filter_by(mail=dict_itsden['email']).first()
+    _sum = DBSession.query(func.sum(Orders.sum_charity+Orders.sum_content)).filter(Orders.mail==dict_itsden['email'])
+    if order is not None:
+        get_content_by_id = DBSession.query(Content).filter(Content.id==request.matchdict['id'],
+                                                            Content.tier<=_sum[0][0]).first()
+        if get_content_by_id is not None:
+            return {'image': '../'+get_content_by_id.image,
+                    'title': get_content_by_id.title,
+                    'description': get_content_by_id.description,
+                    'link': get_content_by_id.link,
+                    'manufacture': get_content_by_id.manufacture,
+                    'user': user}
         else:
             return preview(request)
-        # else:
-        #     return preview(request)
-
-    except KeyError:
-        import traceback
-        print(traceback.format_exc())
-        # return HTTPFound(location='/')
+    else:
+        return preview(request)
+    # else:
+    #     return preview(request)
